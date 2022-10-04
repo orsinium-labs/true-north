@@ -1,3 +1,5 @@
+import math
+from random import randint
 import true_north
 
 # Group is a collection of benchmarks.
@@ -6,10 +8,10 @@ group = true_north.Group()
 
 
 @group.add()
-def check_me():
-    with true_north.setup():
-        a = 1
-    a + 2
+def math_sin(r):
+    val = randint(-1000, 1000)
+    for _ in r:
+        math.sin(val)
 
 
 if __name__ == '__main__':

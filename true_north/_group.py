@@ -4,10 +4,8 @@ from pathlib import Path
 from typing import Callable
 
 from functools import cached_property
-from ._check import Check
+from ._check import Check, Func
 from ._results import Results
-
-Func = Callable[[], None]
 
 
 class Group:
@@ -56,22 +54,12 @@ class Group:
                 The results will show only the best repeat
                 to reduce how external factors affect the results.
         """
-        frame = inspect.currentframe()
-        assert frame is not None
-        frame = frame.f_back
-        if frame is None:
-            raise RuntimeError('cannot find the caller')
-        frame_info = inspect.getframeinfo(frame)
-        globals = frame.f_globals
-
         def wrapper(func: Func) -> Check:
             check = Check(
                 func=func,
                 name=name,
                 loops=loops,
                 repeats=repeats,
-                frame=frame_info,
-                globals=globals,
             )
             self._checks.append(check)
             return check

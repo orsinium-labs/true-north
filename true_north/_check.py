@@ -1,109 +1,71 @@
 from __future__ import annotations
-import ast
 
 from dataclasses import dataclass
-from functools import cached_property
-import inspect
-from pathlib import Path
-from timeit import Timer
-from typing import Callable
+from time import perf_counter
+from typing import Callable, Iterable, Iterator
 from ._result import Result
 
+Func = Callable[[Iterable[int]], None]
+Timer = Callable[..., float]
 
-class setup:
-    """Context manager to mark preparation work that must be excluded from benchmark.
 
-    Everything inside the context won't be measured.
-    Must be called first in the test function.
+@dataclass
+class Looper:
+    loops: int
+    start: float = 0
+    stop: float = 0
+    timer: Callable[..., float] = perf_counter
 
-    The setup is executed only once before all loops.
-    """
-
-    def __enter__(self) -> None:
-        raise RuntimeError('setup was not statically detected')
-
-    def __exit__(self, *_) -> None:
-        pass
+    def __iter__(self) -> Iterator[int]:
+        self.start = self.timer()
+        for i in range(self.loops):
+            yield i
+        self.stop = self.timer()
 
 
 @dataclass
 class Check:
     name: str | None
-    func: Callable[..., None]
-    frame: inspect.Traceback
+    func: Func
     loops: int | None
     repeats: int
-    globals: dict
-
-    @cached_property
-    def node(self) -> ast.FunctionDef:
-        """AST node for the function definition for the check.
-        """
-        tree = ast.parse(
-            source=Path(self.frame.filename).read_text(),
-            filename=self.frame.filename,
-        )
-        lines = {self.frame.lineno, self.frame.lineno + 1}
-        for node in ast.walk(tree):
-            if not isinstance(node, ast.FunctionDef):
-                continue
-            if node.lineno not in lines:
-                continue
-            return node
-        raise LookupError('cannot find AST node for function definition')
-
-    @cached_property
-    def timer(self) -> Timer:
-        bench_body = self.node.body
-        setup_body = self._get_setup(bench_body[0])
-        if setup_body:
-            bench_body = bench_body[1:]
-        return Timer(
-            setup=self._ast_to_func(setup_body),
-            stmt=self._ast_to_func(bench_body),
-        )
-
-    def _get_setup(self, stmt: ast.stmt) -> list[ast.stmt]:
-        # must by a `with` statement with one item
-        if not isinstance(stmt, ast.With):
-            return []
-        if len(stmt.items) != 1:
-            return []
-
-        # # must have name `setup`
-        expr = stmt.items[0].context_expr
-        if not isinstance(expr, ast.Call):
-            return []
-        expr = expr.func
-        name = ''
-        if isinstance(expr, ast.Name):
-            name = expr.id
-        if isinstance(expr, ast.Attribute):
-            name = expr.attr
-        if name != 'setup':
-            return []
-
-        return stmt.body
-
-    def _ast_to_func(self, nodes: list[ast.stmt]) -> Callable[[], None]:
-        module = ast.Module(body=nodes, type_ignores=[])
-        bytecode = compile(module, filename='<ast>', mode='exec')
-
-        def executor() -> None:
-            exec(bytecode, self.globals)
-
-        return executor
 
     def run(self) -> Result:
         """Run benchmarks for the check.
         """
         loops = self.loops
         if loops is None:
-            loops, _ = self.timer.autorange(None)
-        raw_timings = self.timer.repeat(repeat=self.repeats, number=loops)
+            loops = self._autorange()
+        raw_timings = []
+        for _ in range(self.repeats):
+            raw_timings.append(self.run_once(loops))
         assert len(raw_timings) == self.repeats
         return Result(
             name=self.name or self.func.__name__,
             timings=[dt / loops for dt in raw_timings],
             loops=loops,
         )
+
+    def run_once(self, loops: int = 1) -> float:
+        looper = Looper(loops=loops)
+        self.func(looper)
+        return looper.stop - looper.start
+
+    def _autorange(self) -> int:
+        """Return the number of loops and time taken so that total time >= 0.2.
+
+        Calls the timeit method with increasing numbers from the sequence
+        1, 2, 5, 10, 20, 50, ... until the time taken is at least 0.2
+        second.  Returns (number, time_taken).
+
+        If *callback* is given and is not None, it will be called after
+        each trial with two arguments: ``callback(number, time_taken)``.
+        """
+        i = 1
+        while True:
+            for j in 1, 2, 5:
+                number = i * j
+                time_taken = self.run_once(number)
+                if time_taken >= 0.2:
+                    return number
+            i *= 10

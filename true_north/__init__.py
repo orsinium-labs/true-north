@@ -1,4 +1,4 @@
-from ._check import setup, Check
+from ._check import Check
 from ._group import Group
 from ._result import Result
 

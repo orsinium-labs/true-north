@@ -62,52 +62,52 @@ group = true_north.Group(name='sorting algorithms')
 
 
 @group.add(name='sorted')
-def _():
-    with true_north.setup():
-        a = random_list()
-    sorted(a)
+def _(r):
+    a = random_list()
+    for _ in r:
+        sorted(a)
 
 
 @group.add(name='list.sort')
-def _():
-    with true_north.setup():
-        a = random_list()
-    a.sort()
+def _(r):
+    a = random_list()
+    for _ in r:
+        a.sort()
 
 
 @group.add(name='insert')
-def _():
-    with true_north.setup():
-        a = random_list()
-    insert_sort(a)
+def _(r):
+    a = random_list()
+    for _ in r:
+        insert_sort(a)
 
 
 @group.add(name='select')
-def _():
-    with true_north.setup():
-        a = random_list()
-    select_sort(a)
+def _(r):
+    a = random_list()
+    for _ in r:
+        select_sort(a)
 
 
 @group.add(name='bubble')
-def _():
-    with true_north.setup():
-        a = random_list()
-    bubble_sort(a)
+def _(r):
+    a = random_list()
+    for _ in r:
+        bubble_sort(a)
 
 
 @group.add(name='quick')
-def _():
-    with true_north.setup():
-        a = random_list()
-    quick_sort(a)
+def _(r):
+    a = random_list()
+    for _ in r:
+        quick_sort(a)
 
 
 @group.add(name='heap')
-def _():
-    with true_north.setup():
-        a = random_list()
-    heap_sort(a)
+def _(r):
+    a = random_list()
+    for _ in r:
+        heap_sort(a)
 
 
 if __name__ == '__main__':
