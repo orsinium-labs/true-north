@@ -5,6 +5,7 @@ from functools import cached_property
 
 from ._colors import DEFAULT_COLORS, Colors
 
+
 SCALES = (
     (1.0, 's '),
     (1e-3, 'ms'),

@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import sys
 from argparse import ArgumentParser
-from typing import NoReturn, TextIO, Iterator
 from pathlib import Path
+from typing import Iterator, NoReturn, TextIO
+
 from ._group import Group
 
 

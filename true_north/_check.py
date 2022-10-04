@@ -6,6 +6,7 @@ from typing import Callable, Iterable, Iterator
 
 from ._result import Result
 
+
 Func = Callable[[Iterable[int]], None]
 Timer = Callable[..., float]
 
