@@ -12,6 +12,8 @@ class Results:
     results: list[Result]
 
     def print(self, stream: TextIO = sys.stdout) -> None:
+        """Print all results.
+        """
         print(self.name, file=stream)
         for result in self.results:
             print(f'  {result.name}', file=stream)

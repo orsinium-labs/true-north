@@ -11,8 +11,14 @@ from ._result import Result
 
 
 class setup:
+    """Context manager to mark preparation work that must be excluded from benchmark.
+
+    Everything inside the context won't be measured.
+    Must be called first in the test function.
+    """
+
     def __enter__(self) -> None:
-        raise RuntimeError('setup must not be executed in runtime')
+        raise RuntimeError('setup was not statically detected')
 
     def __exit__(self, *_) -> None:
         pass
