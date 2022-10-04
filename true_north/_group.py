@@ -62,7 +62,7 @@ class Group:
         def wrapper(func: Func) -> Check:
             check = Check(
                 func=func,
-                name=name,
+                name=name or func.__name__,
                 loops=loops,
                 repeats=repeats,
                 min_time=min_time,

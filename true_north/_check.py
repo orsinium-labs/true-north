@@ -30,7 +30,7 @@ class Check:
 
     Don't instancinate directly, use `Group.add` decorator instead.
     """
-    name: str | None
+    name: str
     func: Func
     loops: int | None
     repeats: int
@@ -47,7 +47,7 @@ class Check:
             raw_timings.append(self.run_once(loops))
         assert len(raw_timings) == self.repeats
         return Result(
-            name=self.name or self.func.__name__,
+            name=self.name,
             timings=[dt / loops for dt in raw_timings],
             loops=loops,
         )
