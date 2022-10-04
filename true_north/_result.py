@@ -5,14 +5,13 @@ from functools import cached_property
 from ._colors import Colors, DEFAULT_COLORS
 
 SCALES = (
-    (1.0, 's'),
+    (1.0, 's '),
     (1e-3, 'ms'),
     (1e-6, 'us'),
     (1e-9, 'ns'),
 )
 TICKS = '▁▂▃▄▅▆▇█'
 CHUNKS = 6
-PRECISION = 3
 
 
 @dataclass(frozen=True)
@@ -48,28 +47,33 @@ class Result:
     ) -> str:
         """Represent the result as a line of text.
         """
-        result = '    {loops:4} loops, best of {repeat}: {best:>12}'.format(
+        result = '    {loops:4} loops, best of {repeat}: {best}'.format(
             loops=format_amount(self.loops),
             repeat=len(self.timings),
-            best=format_time(self.best),
+            best=format_time(self.best, colors=colors),
         )
         if base_time is not None:
-            ratio = round(self.best / base_time, 2)
-            coloring = colors.green if ratio <= 1 else colors.red
-            ratio_text = f'x{ratio}'.rjust(8)
-            result += f' {coloring(ratio_text)}'
+            good = self.best < base_time
+            if good:
+                ratio = round(base_time / self.best, 2)
+                ratio_text = f'/{ratio:.02f}'.rjust(8)
+                result += f' {colors.green(ratio_text)} faster'
+            else:
+                ratio = round(self.best / base_time, 2)
+                ratio_text = f'x{ratio:.02f}'.rjust(8)
+                result += f' {colors.red(ratio_text)} slower'
         else:
-            result += ' ' * 9
+            result += ' ' * 16
         result += f' {self.histogram}'
         return result
 
 
-def format_time(dt: float) -> str:
+def format_time(dt: float, colors: Colors) -> str:
     for scale, unit in SCALES:
         if dt >= scale:
             break
-    value = round(dt / scale, PRECISION)
-    return f'{value} {unit}'
+    value = f'{dt/scale:3.03f}'.rjust(7)
+    return f'{value} {colors.color_unit(unit)}'
 
 
 def format_amount(number: float, k: int = 0) -> str:

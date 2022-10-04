@@ -13,10 +13,22 @@ MAGENTA = '\033[35m'
 CYAN = '\033[36m'
 END = '\033[0m'
 
+UNITS = {
+    's ': RED,
+    'ms': YELLOW,
+    'us': GREEN,
+    'ns': CYAN,
+}
+
 
 @dataclass(frozen=True)
 class Colors:
     disabled: bool = bool(os.environ.get('NO_COLOR'))
+
+    def color_unit(self, unit: str) -> str:
+        if self.disabled:
+            return unit
+        return f'{UNITS[unit]}{unit}{END}'
 
     def green(self, text: Any) -> str:
         if self.disabled:

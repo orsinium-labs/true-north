@@ -15,6 +15,8 @@ class setup:
 
     Everything inside the context won't be measured.
     Must be called first in the test function.
+
+    The setup is executed only once before all loops.
     """
 
     def __enter__(self) -> None:
@@ -35,6 +37,8 @@ class Check:
 
     @cached_property
     def node(self) -> ast.FunctionDef:
+        """AST node for the function definition for the check.
+        """
         tree = ast.parse(
             source=Path(self.frame.filename).read_text(),
             filename=self.frame.filename,
@@ -91,6 +95,8 @@ class Check:
         return executor
 
     def run(self) -> Result:
+        """Run benchmarks for the check.
+        """
         loops = self.loops
         if loops is None:
             loops, _ = self.timer.autorange(None)
