@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import cached_property
+from ._colors import Colors, DEFAULT_COLORS
 
 SCALES = (
     (1.0, 's'),
@@ -40,14 +41,27 @@ class Result:
             histogram.append(TICKS[index])
         return ''.join(histogram)
 
-    @cached_property
-    def text(self) -> str:
-        return '    {loops} loops, best of {repeat}: {best} {hist}'.format(
+    def get_text(
+        self,
+        colors: Colors = DEFAULT_COLORS,
+        base_time: float | None = None,
+    ) -> str:
+        """Represent the result as a line of text.
+        """
+        result = '    {loops:4} loops, best of {repeat}: {best:>12}'.format(
             loops=format_amount(self.loops),
             repeat=len(self.timings),
             best=format_time(self.best),
-            hist=self.histogram,
         )
+        if base_time is not None:
+            ratio = round(self.best / base_time, 2)
+            coloring = colors.green if ratio <= 1 else colors.red
+            ratio_text = f'x{ratio}'.rjust(8)
+            result += f' {coloring(ratio_text)}'
+        else:
+            result += ' ' * 9
+        result += f' {self.histogram}'
+        return result
 
 
 def format_time(dt: float) -> str:

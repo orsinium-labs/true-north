@@ -45,6 +45,8 @@ class Group:
     ) -> Callable[[Func], Check]:
         """Register a new benchmark function in the group.
 
+        The first registered benchmark will be used as the baseline for all others.
+
         Args:
             name: if not specified, the function name will be used.
             loops: how many times to run the benchmark in each repeat.

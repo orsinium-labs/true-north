@@ -12,4 +12,5 @@ def check_me():
     a + 2
 
 
-group.run().print()
+if __name__ == '__main__':
+    group.run().print()
