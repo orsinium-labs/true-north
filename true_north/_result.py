@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import cached_property
-from ._colors import Colors, DEFAULT_COLORS
+
+from ._colors import DEFAULT_COLORS, Colors
 
 SCALES = (
     (1.0, 's '),

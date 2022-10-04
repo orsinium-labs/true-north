@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from time import perf_counter
 from typing import Callable, Iterable, Iterator
+
 from ._result import Result
 
 Func = Callable[[Iterable[int]], None]

@@ -1,13 +1,14 @@
 from __future__ import annotations
+
 import inspect
-from pathlib import Path
 import sys
+from functools import cached_property
+from pathlib import Path
 from typing import Callable, Iterator, TextIO
 
-from functools import cached_property
 from ._check import Check, Func
+from ._colors import DEFAULT_COLORS, Colors
 from ._result import Result
-from ._colors import Colors, DEFAULT_COLORS
 
 
 class Group:

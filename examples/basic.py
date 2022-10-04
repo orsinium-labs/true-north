@@ -1,5 +1,6 @@
 import math
 from random import randint
+
 import true_north
 
 # Group is a collection of benchmarks.
