@@ -11,7 +11,7 @@ SCALES = (
     (1e-9, 'ns'),
 )
 TICKS = '▁▂▃▄▅▆▇█'
-CHUNKS = 6
+CHUNKS = len(TICKS) - 1
 
 
 @dataclass(frozen=True)
@@ -22,20 +22,21 @@ class Result:
 
     @property
     def best(self) -> float:
+        """The best of all timings (repeats).
+        """
         return min(self.timings)
 
     @cached_property
     def histogram(self) -> str:
-        best = 0
-        worst = max(self.timings)
-        diff = worst - best
-
-        if diff == 0:
-            return TICKS[-1] * CHUNKS
+        """Histogram of timings (repeats).
+        """
+        worst = max(self.timings, default=0)
+        if worst == 0:
+            return TICKS[-1] * len(self.timings)
 
         histogram = []
         for time in self.timings:
-            ratio = (time - best) / diff
+            ratio = time / worst
             index = int(round(ratio * CHUNKS))
             histogram.append(TICKS[index])
         return ''.join(histogram)

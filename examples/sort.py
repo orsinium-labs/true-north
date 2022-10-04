@@ -111,4 +111,4 @@ def _(r):
 
 
 if __name__ == '__main__':
-    group.run().print()
+    group.print()

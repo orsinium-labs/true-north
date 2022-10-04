@@ -25,10 +25,15 @@ class Looper:
 
 @dataclass
 class Check:
+    """A single benchmark.
+
+    Don't instancinate directly, use `Group.add` decorator instead.
+    """
     name: str | None
     func: Func
     loops: int | None
     repeats: int
+    min_time: float
 
     def run(self) -> Result:
         """Run benchmarks for the check.
@@ -52,20 +57,17 @@ class Check:
         return looper.stop - looper.start
 
     def _autorange(self) -> int:
-        """Return the number of loops and time taken so that total time >= 0.2.
+        """Return the number of loops so that total time is at least min_time.
 
         Calls the timeit method with increasing numbers from the sequence
         1, 2, 5, 10, 20, 50, ... until the time taken is at least 0.2
-        second.  Returns (number, time_taken).
-
-        If *callback* is given and is not None, it will be called after
-        each trial with two arguments: ``callback(number, time_taken)``.
+        second.
         """
         i = 1
         while True:
             for j in 1, 2, 5:
                 number = i * j
                 time_taken = self.run_once(number)
-                if time_taken >= 0.2:
+                if time_taken >= self.min_time:
                     return number
             i *= 10
