@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import gc
 from typing import Callable, Iterable
 
 from ._loopers import TotalLooper, Timer
@@ -42,7 +43,13 @@ class Check:
 
     def run_once(self, loops: int = 1) -> float:
         looper = TotalLooper(loops=loops, timer=self.timer)
-        self.func(looper)
+        gc_was_enabled = gc.isenabled()
+        gc.disable()
+        try:
+            self.func(looper)
+        finally:
+            if gc_was_enabled:
+                gc.enable()
         return looper.stop - looper.start
 
     def _autorange(self) -> tuple[int, float]:
