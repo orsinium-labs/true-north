@@ -18,7 +18,7 @@ Features:
 ## Installation
 
 ```bash
-pytohn3 -m pip install true-north
+python3 -m pip install true-north
 ```
 
 ## Usage
