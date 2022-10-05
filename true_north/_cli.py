@@ -1,4 +1,5 @@
 from __future__ import annotations
+import argparse
 
 import sys
 from argparse import ArgumentParser
@@ -25,23 +26,27 @@ def get_paths(path: Path) -> Iterator[Path]:
         yield from get_paths(subpath)
 
 
-def run_all_groups(path: Path, stdout: TextIO) -> None:
+def run_all_groups(path: Path, args: argparse.Namespace, stdout: TextIO) -> None:
     content = path.read_text()
     globals: dict[str, object] = {}
     code = compile(content, filename=str(path), mode='exec')
     exec(code, globals)
     for obj in globals.values():
         if isinstance(obj, Group):
-            obj.print(stream=stdout)
+            obj.print(stream=stdout, opcodes=args.opcodes)
 
 
 def main(argv: list[str], stdout: TextIO) -> int:
     parser = ArgumentParser()
     parser.add_argument('paths', nargs='+')
+    parser.add_argument(
+        '--opcodes', action='store_true',
+        help='Count opcodes. Slow but reproducible.'
+    )
     args = parser.parse_args(argv)
     for root in args.paths:
         for path in get_paths(Path(root)):
-            run_all_groups(path, stdout=stdout)
+            run_all_groups(path, args=args, stdout=stdout)
     return 0
 
 

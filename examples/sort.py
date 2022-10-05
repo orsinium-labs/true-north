@@ -1,8 +1,10 @@
 from functools import partial
 import heapq
-from random import randint
+from random import randint, seed
 
 import true_north
+
+seed(13)
 
 
 def random_list() -> list:

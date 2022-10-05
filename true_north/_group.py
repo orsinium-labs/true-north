@@ -47,6 +47,7 @@ class Group:
         repeats: int = 5,
         min_time: float = .2,
         timer: Timer = perf_counter,
+        opcodes: bool = False,
     ) -> Callable[[Func], Check]:
         """Register a new benchmark function in the group.
 
@@ -81,8 +82,12 @@ class Group:
         self,
         stream: TextIO = sys.stdout,
         colors: Colors = DEFAULT_COLORS,
+        opcodes: bool = False,
     ) -> None:
         """Run all benchmarks in the group and print their results.
+
+        Args:
+            opcodes: count opcodes. Slow but reproducible.
         """
         base_time: float | None = None
         print(colors.blue(self.name), file=stream)
@@ -93,6 +98,9 @@ class Group:
             print(text, file=stream)
             if base_time is None:
                 base_time = result.best
+            if opcodes:
+                opcodes_text = f'{check.count_opcodes():>12}'
+                print(f'    opcodes: {colors.cyan(opcodes_text)}', file=stream)
 
     def iter(self) -> Iterator[Result]:
         """Iterate over all benchmarks and run them.

@@ -1,6 +1,10 @@
 from __future__ import annotations
+import inspect
 from dataclasses import dataclass
+import sys
+from types import FrameType
 from typing import Callable, Iterator
+
 
 Timer = Callable[[], float]
 
@@ -36,3 +40,45 @@ class EachLooper:
             yield i
             stop = self.timer()
             self.timings.append(stop - start)
+
+
+@dataclass
+class OpcodeLooper:
+    loops: int
+    count: int = 0
+    active: bool = False
+
+    def callback(self, frame: FrameType, event: str, arg):
+        frame.f_trace_opcodes = True
+        if event == 'opcode' and frame.f_code.co_filename != __file__:
+            self.count += 1
+        elif event == 'return':
+            frame.f_trace_opcodes = True
+            frame.f_trace = None
+
+    def noop(self, frame, event: str, arg):
+        if not self.active:
+            return None
+        if event == 'call':
+            return self.callback
+
+    def __iter__(self) -> Iterator[int]:
+        frame = inspect.currentframe()
+        assert frame
+        frame = frame.f_back
+        assert frame
+
+        sys.settrace(self.noop)  # enable tracing globally
+        old_tracer = frame.f_trace
+        frame.f_trace = self.callback  # trace the benchmarking function
+        old_opcodes = frame.f_trace_opcodes
+        frame.f_trace_opcodes = True  # enable opcode tracing
+
+        self.count = 0
+        self.active = True
+        for i in range(self.loops):
+            yield i
+
+        self.active = False
+        frame.f_trace = old_tracer
+        frame.f_trace_opcodes = old_opcodes

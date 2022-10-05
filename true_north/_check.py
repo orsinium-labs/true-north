@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import gc
 from typing import Callable, Iterable
 
-from ._loopers import TotalLooper, Timer, EachLooper
+from ._loopers import TotalLooper, Timer, EachLooper, OpcodeLooper
 from ._result import Result
 
 
@@ -58,6 +58,13 @@ class Check:
         self._run(looper)
         assert len(looper.timings) == loops
         return looper.timings
+
+    def count_opcodes(self, loops: int = 1) -> int:
+        """Run the benchmark and count executed opcodes.
+        """
+        looper = OpcodeLooper(loops=loops)
+        self._run(looper)
+        return looper.count
 
     def _run(self, looper: Iterable[int]) -> None:
         gc_was_enabled = gc.isenabled()

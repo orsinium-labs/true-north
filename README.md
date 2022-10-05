@@ -6,6 +6,7 @@ Features:
 
 + Follows best practices of benchmarking to produce the most reliable results.
 + Detects caching and side-effects.
++ Opcodes tracing for reproducble benchmarks.
 + 100% type safe.
 + Zero dependency.
 + Highly configurable.
