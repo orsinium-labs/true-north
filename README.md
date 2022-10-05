@@ -37,7 +37,18 @@ def math_sorted(r):
         sorted(val)
 
 # run and print all benchmarks in the group
-group.print()
+if __name__ == '__main__':
+    group.print()
 ```
 
 See [examples](./examples/) for more examples.
+
+## Tracing opcodes
+
+If you run CLI with `--opcodes` or call `Group.print` with `opcodes=True`, the output will also include the number of [opcodes](https://docs.python.org/3/library/dis.html) executed by the benchmark function. The idea is similar to how [benchee](https://github.com/bencheeorg/benchee) [counts reductions](https://github.com/bencheeorg/benchee#measuring-reductions) (function calls) for Erlang code. The difference between measuring execution time and executed opcodes is that the latter is reproducible. There are a few catches, though:
+
+1. Different version of Python produce different number of opcodes. Always run benchmarks on the same Python interpreter.
+1. Tracing opcodes requires true-north to register multiple tracing hooks, which slows down the code execution. It won't affect the timing benchmarks, but it will take more time to run the suite.
+1. More opcodes doesn't mean slower code. Different opcodes take different time to run. In particular, calling a C function (like `sorted`) is just one opcode. However, if you compare two pure Python functions that don't use call anything heavy, opcodes will roughly correlate with the execution time.
+
+![output example with opcodes](./opcodes.png)
