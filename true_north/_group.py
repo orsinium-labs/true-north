@@ -4,10 +4,12 @@ import inspect
 import sys
 from functools import cached_property
 from pathlib import Path
+from time import perf_counter
 from typing import Callable, Iterator, TextIO
 
 from ._check import Check, Func
 from ._colors import DEFAULT_COLORS, Colors
+from ._loopers import Timer
 from ._result import Result
 
 
@@ -44,6 +46,7 @@ class Group:
         loops: int | None = None,
         repeats: int = 5,
         min_time: float = .2,
+        timer: Timer = perf_counter,
     ) -> Callable[[Func], Check]:
         """Register a new benchmark function in the group.
 
@@ -58,6 +61,7 @@ class Group:
                 The results will show only the best repeat
                 to reduce how external factors affect the results.
             min_time: the minimum run time to target if `loops` is not specified.
+            timer: function used to get the current time.
         """
         def wrapper(func: Func) -> Check:
             check = Check(
@@ -66,6 +70,7 @@ class Group:
                 loops=loops,
                 repeats=repeats,
                 min_time=min_time,
+                timer=timer,
             )
             self._checks.append(check)
             return check

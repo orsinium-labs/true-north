@@ -1,28 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from time import perf_counter
-from typing import Callable, Iterable, Iterator
+from typing import Callable, Iterable
 
+from ._loopers import TotalLooper, Timer
 from ._result import Result
 
 
 Func = Callable[[Iterable[int]], None]
-Timer = Callable[..., float]
-
-
-@dataclass
-class Looper:
-    loops: int
-    start: float = 0
-    stop: float = 0
-    timer: Callable[..., float] = perf_counter
-
-    def __iter__(self) -> Iterator[int]:
-        self.start = self.timer()
-        for i in range(self.loops):
-            yield i
-        self.stop = self.timer()
 
 
 @dataclass
@@ -36,6 +21,7 @@ class Check:
     loops: int | None
     repeats: int
     min_time: float
+    timer: Timer
 
     def run(self) -> Result:
         """Run benchmarks for the check.
@@ -55,7 +41,7 @@ class Check:
         )
 
     def run_once(self, loops: int = 1) -> float:
-        looper = Looper(loops=loops)
+        looper = TotalLooper(loops=loops, timer=self.timer)
         self.func(looper)
         return looper.stop - looper.start
 
