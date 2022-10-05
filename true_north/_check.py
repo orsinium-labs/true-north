@@ -40,11 +40,12 @@ class Check:
     def run(self) -> Result:
         """Run benchmarks for the check.
         """
+        raw_timings = []
         loops = self.loops
         if loops is None:
-            loops = self._autorange()
-        raw_timings = []
-        for _ in range(self.repeats):
+            loops, raw_timing = self._autorange()
+            raw_timings.append(raw_timing)
+        for _ in range(self.repeats - 1):
             raw_timings.append(self.run_once(loops))
         assert len(raw_timings) == self.repeats
         return Result(
@@ -58,7 +59,7 @@ class Check:
         self.func(looper)
         return looper.stop - looper.start
 
-    def _autorange(self) -> int:
+    def _autorange(self) -> tuple[int, float]:
         """Return the number of loops so that total time is at least min_time.
 
         Calls the timeit method with increasing numbers from the sequence
@@ -71,5 +72,5 @@ class Check:
                 number = i * j
                 time_taken = self.run_once(number)
                 if time_taken >= self.min_time:
-                    return number
+                    return number, time_taken
             i *= 10
