@@ -22,5 +22,21 @@ def math_sin(r):
     # The timer stops as soon as the code exits the loop.
 
 
+@group.add(name='math.cos')
+def _(r):
+    val = randint(-1000, 1000)
+    for _ in r:
+        math.cos(val)
+
+
+@group.add(name='math.tan')
+def _(r):
+    val = randint(-1000, 1000)
+    for _ in r:
+        math.tan(val)
+
+
 if __name__ == '__main__':
+    # If the script is run directly (`python3 examples/basic.py`),
+    # run and print benchmarks.
     group.print()

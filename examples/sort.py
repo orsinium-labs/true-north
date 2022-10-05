@@ -1,3 +1,4 @@
+from functools import partial
 import heapq
 from random import randint
 
@@ -62,53 +63,26 @@ def heap_sort(values: list) -> list:
 group = true_north.Group(name='sorting algorithms')
 
 
-@group.add(name='sorted')
-def _(r):
-    a = random_list()
-    for _ in r:
-        sorted(a)
-
-
 @group.add(name='list.sort')
 def _(r):
-    a = random_list()
+    base_list = random_list()
     for _ in r:
+        a = base_list.copy()
         a.sort()
 
 
-@group.add(name='insert')
-def _(r):
-    a = random_list()
+def bench(func, r):
+    base_list = random_list()
     for _ in r:
-        insert_sort(a)
+        a = base_list.copy()
+        func(a)
 
 
-@group.add(name='select')
-def _(r):
-    a = random_list()
-    for _ in r:
-        select_sort(a)
-
-
-@group.add(name='bubble')
-def _(r):
-    a = random_list()
-    for _ in r:
-        bubble_sort(a)
-
-
-@group.add(name='quick')
-def _(r):
-    a = random_list()
-    for _ in r:
-        quick_sort(a)
-
-
-@group.add(name='heap')
-def _(r):
-    a = random_list()
-    for _ in r:
-        heap_sort(a)
+# true-north doesn't do any static analysis,
+# so you can define benchmarks dynamically.
+FUNCS = (sorted, insert_sort, select_sort, bubble_sort, quick_sort, heap_sort)
+for func in FUNCS:
+    group.add(name=func.__name__)(partial(bench, func))
 
 
 if __name__ == '__main__':
