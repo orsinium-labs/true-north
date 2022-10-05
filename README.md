@@ -5,6 +5,7 @@ Beautiful and pythonic benchmarks engine for Python code.
 Features:
 
 + Follows best practices of benchmarking to produce the most reliable results.
++ Detects caching and side-effects.
 + 100% type safe.
 + Zero dependency.
 + Highly configurable.

@@ -19,25 +19,38 @@ CHUNKS = len(TICKS) - 1
 @dataclass(frozen=True)
 class Result:
     name: str
-    timings: list[float]
+    total_timings: list[float]
+    each_timings: list[float]
     loops: int
 
     @property
     def best(self) -> float:
         """The best of all timings (repeats).
         """
-        return min(self.timings)
+        return min(self.total_timings)
+
+    @cached_property
+    def fastest(self) -> float:
+        """The fastest individual iteration.
+        """
+        return min(self.each_timings)
+
+    @cached_property
+    def slowest(self) -> float:
+        """The slowest individual iteration.
+        """
+        return max(self.each_timings)
 
     @cached_property
     def histogram(self) -> str:
         """Histogram of timings (repeats).
         """
-        worst = max(self.timings, default=0)
+        worst = max(self.total_timings, default=0)
         if worst == 0:
-            return TICKS[-1] * len(self.timings)
+            return TICKS[-1] * len(self.total_timings)
 
         histogram = []
-        for time in self.timings:
+        for time in self.total_timings:
             ratio = time / worst
             index = int(round(ratio * CHUNKS))
             histogram.append(TICKS[index])
@@ -50,9 +63,25 @@ class Result:
     ) -> str:
         """Represent the result as a line of text.
         """
-        result = '    {loops:4} loops, best of {repeat}: {best}'.format(
+        result = ''
+
+        # warnings
+        ratio = self.each_timings[0] / self.each_timings[1]
+        if ratio > 2:
+            warn = 'possible caching detected'
+            descr = f'first result x{ratio:.0f} slower than second'
+            result += f'    {colors.yellow(warn)}: {descr}\n'
+        else:
+            ratio = self.slowest / self.fastest
+            if ratio > 10:
+                warn = 'possible side-effect detected'
+                descr = f'slowest result x{ratio:.0f} slower than fastest'
+                result += f'    {colors.yellow(warn)}: {descr}\n'
+
+        # timing report
+        result += '    {loops:4} loops, best of {repeat}: {best}'.format(
             loops=format_amount(self.loops),
-            repeat=len(self.timings),
+            repeat=len(self.total_timings),
             best=format_time(self.best, colors=colors),
         )
         if base_time is not None:
