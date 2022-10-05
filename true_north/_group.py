@@ -99,7 +99,8 @@ class Group:
             if base_time is None:
                 base_time = result.best
             if opcodes:
-                opcodes_text = f'{check.count_opcodes():>12}'
+                opcodes_text = f'{check.count_opcodes():,}'.replace(',', ' ')
+                opcodes_text = f'{opcodes_text:>12}'
                 print(f'    opcodes: {colors.cyan(opcodes_text)}', file=stream)
 
     def iter(self) -> Iterator[Result]:

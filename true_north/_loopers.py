@@ -57,9 +57,7 @@ class OpcodeLooper:
             frame.f_trace = None
 
     def noop(self, frame, event: str, arg):
-        if not self.active:
-            return None
-        if event == 'call':
+        if self.active and event == 'call':
             return self.callback
 
     def __iter__(self) -> Iterator[int]:
@@ -68,17 +66,15 @@ class OpcodeLooper:
         frame = frame.f_back
         assert frame
 
-        sys.settrace(self.noop)  # enable tracing globally
-        old_tracer = frame.f_trace
-        frame.f_trace = self.callback  # trace the benchmarking function
-        old_opcodes = frame.f_trace_opcodes
-        frame.f_trace_opcodes = True  # enable opcode tracing
+        sys.settrace(self.noop)         # enable tracing globally
+        frame.f_trace = self.callback   # trace the benchmarking function
+        frame.f_trace_opcodes = True    # enable opcode tracing
+        self.active = True
 
         self.count = 0
-        self.active = True
         for i in range(self.loops):
             yield i
 
+        frame.f_trace = None
+        frame.f_trace_opcodes = False
         self.active = False
-        frame.f_trace = old_tracer
-        frame.f_trace_opcodes = old_opcodes
