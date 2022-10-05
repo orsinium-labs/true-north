@@ -3,7 +3,7 @@ requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name = "true_north"
+name = "true-north"
 authors = [
     {name = "Gram", email = "git@orsinium.dev"},
 ]
@@ -29,7 +29,7 @@ keywords = [
 dependencies = []
 
 [tool.flit.module]
-name = "true-north"
+name = "true_north"
 
 [project.optional-dependencies]
 test = ["pytest", "pytest-cov"]
