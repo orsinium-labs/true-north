@@ -6,6 +6,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 from typing import Iterator, NoReturn, TextIO
 
+from ._colors import Colors, DEFAULT_COLORS
 from ._group import Group
 
 
@@ -31,9 +32,20 @@ def run_all_groups(path: Path, args: argparse.Namespace, stdout: TextIO) -> None
     globals: dict[str, object] = {}
     code = compile(content, filename=str(path), mode='exec')
     exec(code, globals)
-    for obj in globals.values():
-        if isinstance(obj, Group):
-            obj.print(stream=stdout, opcodes=args.opcodes)
+    if args.no_color:
+        colors = Colors(disabled=True)
+    else:
+        colors = DEFAULT_COLORS
+    for group in globals.values():
+        if not isinstance(group, Group):
+            continue
+        if args.group and group.name != args.group:
+            continue
+        group.print(
+            stream=stdout,
+            opcodes=args.opcodes,
+            colors=colors,
+        )
 
 
 def main(argv: list[str], stdout: TextIO) -> int:
@@ -42,6 +54,14 @@ def main(argv: list[str], stdout: TextIO) -> int:
     parser.add_argument(
         '--opcodes', action='store_true',
         help='Count opcodes. Slow but reproducible.'
+    )
+    parser.add_argument(
+        '--no-color', action='store_true',
+        help='Write a boring one-color output.'
+    )
+    parser.add_argument(
+        '--group', type=str,
+        help='The group name to run.'
     )
     args = parser.parse_args(argv)
     for root in args.paths:
