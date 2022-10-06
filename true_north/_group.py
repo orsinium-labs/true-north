@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import inspect
+import os
 import sys
-from functools import cached_property
-from pathlib import Path
 from time import perf_counter
 from typing import Callable, Iterator, TextIO
 
@@ -18,27 +17,24 @@ class Group:
 
     If `name` is not specified, file name and line number will be used instead.
     """
-    _name: str | None
+    __slots__ = ('name', '_checks')
+    name: str
     _checks: list[Check]
-    _frame: inspect.Traceback
 
     def __init__(self, name: str | None = None) -> None:
-        self._name = name
         self._checks = []
 
-        frame = inspect.currentframe()
-        assert frame is not None
-        frame = frame.f_back
-        if frame is None:
-            raise RuntimeError('cannot find the caller')
-        self._frame = inspect.getframeinfo(frame)
-
-    @cached_property
-    def name(self) -> str:
-        if self._name:
-            return self._name
-        fname = Path(self._frame.filename).name
-        return f'{fname}:{self._frame.lineno}'
+        if name is None:
+            frame = inspect.currentframe()
+            assert frame is not None
+            frame = frame.f_back
+            if frame is None:
+                name = '???'
+            else:
+                frame_info = inspect.getframeinfo(frame)
+                file_name = os.path.basename(frame_info.filename)
+                name = f'{file_name}:{frame_info.lineno}'
+        self.name = name
 
     def add(
         self,
@@ -87,6 +83,8 @@ class Group:
         """Run all benchmarks in the group and print their results.
 
         Args:
+            stream: the stream where to write all output.
+                Default is stdout.
             opcodes: count opcodes. Slow but reproducible.
         """
         base_time: float | None = None
