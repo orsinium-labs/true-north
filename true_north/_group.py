@@ -31,19 +31,19 @@ class Group:
             if frame is None:
                 name = '???'
             else:
-                frame_info = inspect.getframeinfo(frame)
-                file_name = os.path.basename(frame_info.filename)
-                name = f'{file_name}:{frame_info.lineno}'
+                file_name = os.path.basename(frame.f_code.co_filename)
+                name = f'{file_name}:{frame.f_lineno}'
         self.name = name
 
     def add(
         self,
+        func: Func | None = None,
+        *,
         name: str | None = None,
         loops: int | None = None,
         repeats: int = 5,
         min_time: float = .2,
         timer: Timer = perf_counter,
-        opcodes: bool = False,
     ) -> Callable[[Func], Check]:
         """Register a new benchmark function in the group.
 
@@ -72,6 +72,11 @@ class Group:
             self._checks.append(check)
             return check
 
+        if func is not None:
+            # IDK how to make a proper `@overload` signature
+            # without duplicating all arguments.
+            # Just look at how signature for `open` is declared.
+            return wrapper(func)  # type: ignore[return-value]
         return wrapper
 
     def print(

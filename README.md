@@ -28,7 +28,7 @@ import true_north
 
 group = true_north.Group()
 
-@group.add()
+@group.add
 def math_sorted(r):
     val = [1, 2, 3] * 300
     # timer start before entering the loop
