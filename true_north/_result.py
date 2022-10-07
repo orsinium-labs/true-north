@@ -65,12 +65,12 @@ class Result:
             good = self.best < base_time
             if good:
                 ratio = round(base_time / self.best, 2)
-                ratio_text = f'/{ratio:.02f}'.rjust(8)
-                result += f' {colors.green(ratio_text)} faster'
+                ratio_text = f'/{ratio:.02f}'
+                result += f' {colors.green(ratio_text, rjust=8)} faster'
             else:
                 ratio = round(self.best / base_time, 2)
-                ratio_text = f'x{ratio:.02f}'.rjust(8)
-                result += f' {colors.red(ratio_text)} slower'
+                ratio_text = f'x{ratio:.02f}'
+                result += f' {colors.red(ratio_text, rjust=8)} slower'
         else:
             result += ' ' * 16
         result += f' {self.histogram}'

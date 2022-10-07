@@ -102,9 +102,10 @@ class Group:
             if base_time is None:
                 base_time = result.best
             if opcodes:
-                opcodes_text = f'{check.count_opcodes():,}'.replace(',', ' ')
-                opcodes_text = f'{opcodes_text:>12}'
-                print(f'    opcodes: {colors.cyan(opcodes_text)}', file=stream)
+                opcodes_count = check.count_opcodes()
+                opcodes_text = colors.cyan(opcodes_count, rjust=12, group=True)
+                ns_op = colors.cyan(int(result.best * 1e9 // opcodes_count), rjust=4)
+                print(f'    {opcodes_text} ops, {ns_op} ns/op', file=stream)
 
     def iter(self) -> Iterator[Result]:
         """Iterate over all benchmarks and run them.
