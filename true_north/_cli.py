@@ -9,6 +9,11 @@ from typing import Iterator, NoReturn, TextIO
 from ._colors import Colors, DEFAULT_COLORS
 from ._group import Group
 
+try:
+    import ipdb as pdb
+except ImportError:
+    import pdb  # type: ignore
+
 
 def get_paths(path: Path) -> Iterator[Path]:
     """Recursively yields python files.
@@ -39,7 +44,7 @@ def run_all_groups(path: Path, args: argparse.Namespace, stdout: TextIO) -> None
     for group in globals.values():
         if not isinstance(group, Group):
             continue
-        if args.group and group.name != args.group:
+        if args.groups and group.name not in args.groups:
             continue
         group.print(
             stream=stdout,
@@ -60,13 +65,25 @@ def main(argv: list[str], stdout: TextIO) -> int:
         help='Write a boring one-color output.'
     )
     parser.add_argument(
-        '--group', type=str,
-        help='The group name to run.'
+        '--pdb', action='store_true',
+        help='Run PDB on failure.'
+    )
+    parser.add_argument(
+        '--group', dest='groups', nargs='*',
+        help='The group name to run. Can specify multiple values.'
     )
     args = parser.parse_args(argv)
-    for root in args.paths:
-        for path in get_paths(Path(root)):
-            run_all_groups(path, args=args, stdout=stdout)
+    try:
+        for root in args.paths:
+            for path in get_paths(Path(root)):
+                run_all_groups(path, args=args, stdout=stdout)
+    except KeyboardInterrupt:
+        print('Interrupted')
+        return 1
+    except Exception:
+        if args.pdb:
+            pdb.post_mortem()
+        raise
     return 0
 
 
