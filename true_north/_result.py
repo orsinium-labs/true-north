@@ -48,8 +48,12 @@ class Result:
     @cached_property
     def stdev(self) -> float:
         """Standard deviation of loops in a single repeat.
+
+        If there is only one loop in each repeat, use all repeats instead.
         """
         ts = self.each_timings
+        if len(ts) == 1:
+            ts = self.total_timings
         mean = math.fsum(ts) / len(ts)
         return (math.fsum((t - mean) ** 2 for t in ts) / len(ts)) ** 0.5
 
