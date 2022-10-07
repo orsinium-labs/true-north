@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 import gc
+from dataclasses import dataclass
 from typing import Callable, Iterable
 
-from ._loopers import TotalLooper, Timer, EachLooper, OpcodeLooper
+from ._loopers import EachLooper, OpcodeLooper, Timer, TotalLooper
 from ._result import Result
 
 
@@ -32,13 +32,15 @@ class Check:
         each_timings = self._run_each_loop(2)
         total_timings = []
         loops = self.loops
+        repeats = self.repeats
         if loops is None:
             loops, raw_timing = self._autorange()
             total_timings.append(raw_timing)
+            repeats -= 1
         if loops > 2:
             each_timings.extend(self._run_each_loop(loops - 2))
 
-        for _ in range(self.repeats - 1):
+        for _ in range(repeats):
             total_timings.append(self.run_once(loops))
         assert len(total_timings) == self.repeats
         return Result(

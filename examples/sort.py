@@ -1,8 +1,9 @@
-from functools import partial
 import heapq
+from functools import partial
 from random import randint, seed
 
 import true_north
+
 
 seed(13)
 

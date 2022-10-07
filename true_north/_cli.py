@@ -1,12 +1,19 @@
 from __future__ import annotations
-import argparse
 
+import argparse
 import sys
 from argparse import ArgumentParser
 from pathlib import Path
 from typing import Iterator, NoReturn, TextIO
 
+from ._colors import DEFAULT_COLORS, Colors
 from ._group import Group
+
+
+try:
+    import ipdb as pdb
+except ImportError:
+    import pdb  # type: ignore
 
 
 def get_paths(path: Path) -> Iterator[Path]:
@@ -31,9 +38,20 @@ def run_all_groups(path: Path, args: argparse.Namespace, stdout: TextIO) -> None
     globals: dict[str, object] = {}
     code = compile(content, filename=str(path), mode='exec')
     exec(code, globals)
-    for obj in globals.values():
-        if isinstance(obj, Group):
-            obj.print(stream=stdout, opcodes=args.opcodes)
+    if args.no_color:
+        colors = Colors(disabled=True)
+    else:
+        colors = DEFAULT_COLORS
+    for group in globals.values():
+        if not isinstance(group, Group):
+            continue
+        if args.groups and group.name not in args.groups:
+            continue
+        group.print(
+            stream=stdout,
+            opcodes=args.opcodes,
+            colors=colors,
+        )
 
 
 def main(argv: list[str], stdout: TextIO) -> int:
@@ -43,10 +61,30 @@ def main(argv: list[str], stdout: TextIO) -> int:
         '--opcodes', action='store_true',
         help='Count opcodes. Slow but reproducible.'
     )
+    parser.add_argument(
+        '--no-color', action='store_true',
+        help='Write a boring one-color output.'
+    )
+    parser.add_argument(
+        '--pdb', action='store_true',
+        help='Run PDB on failure.'
+    )
+    parser.add_argument(
+        '--group', dest='groups', nargs='*',
+        help='The group name to run. Can specify multiple values.'
+    )
     args = parser.parse_args(argv)
-    for root in args.paths:
-        for path in get_paths(Path(root)):
-            run_all_groups(path, args=args, stdout=stdout)
+    try:
+        for root in args.paths:
+            for path in get_paths(Path(root)):
+                run_all_groups(path, args=args, stdout=stdout)
+    except KeyboardInterrupt:
+        print('Interrupted')
+        return 1
+    except Exception:
+        if args.pdb:
+            pdb.post_mortem()
+        raise
     return 0
 
 

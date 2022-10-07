@@ -1,7 +1,8 @@
 from __future__ import annotations
+
 import inspect
-from dataclasses import dataclass
 import sys
+from dataclasses import dataclass
 from types import FrameType
 from typing import Callable, Iterator
 

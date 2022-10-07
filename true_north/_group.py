@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import inspect
+import os
 import sys
-from functools import cached_property
-from pathlib import Path
 from time import perf_counter
 from typing import Callable, Iterator, TextIO
 
@@ -18,36 +17,33 @@ class Group:
 
     If `name` is not specified, file name and line number will be used instead.
     """
-    _name: str | None
+    __slots__ = ('name', '_checks')
+    name: str
     _checks: list[Check]
-    _frame: inspect.Traceback
 
     def __init__(self, name: str | None = None) -> None:
-        self._name = name
         self._checks = []
 
-        frame = inspect.currentframe()
-        assert frame is not None
-        frame = frame.f_back
-        if frame is None:
-            raise RuntimeError('cannot find the caller')
-        self._frame = inspect.getframeinfo(frame)
-
-    @cached_property
-    def name(self) -> str:
-        if self._name:
-            return self._name
-        fname = Path(self._frame.filename).name
-        return f'{fname}:{self._frame.lineno}'
+        if name is None:
+            frame = inspect.currentframe()
+            assert frame is not None
+            frame = frame.f_back
+            if frame is None:
+                name = '???'
+            else:
+                file_name = os.path.basename(frame.f_code.co_filename)
+                name = f'{file_name}:{frame.f_lineno}'
+        self.name = name
 
     def add(
         self,
+        func: Func | None = None,
+        *,
         name: str | None = None,
         loops: int | None = None,
         repeats: int = 5,
         min_time: float = .2,
         timer: Timer = perf_counter,
-        opcodes: bool = False,
     ) -> Callable[[Func], Check]:
         """Register a new benchmark function in the group.
 
@@ -76,6 +72,11 @@ class Group:
             self._checks.append(check)
             return check
 
+        if func is not None:
+            # IDK how to make a proper `@overload` signature
+            # without duplicating all arguments.
+            # Just look at how signature for `open` is declared.
+            return wrapper(func)  # type: ignore[return-value]
         return wrapper
 
     def print(
@@ -87,6 +88,8 @@ class Group:
         """Run all benchmarks in the group and print their results.
 
         Args:
+            stream: the stream where to write all output.
+                Default is stdout.
             opcodes: count opcodes. Slow but reproducible.
         """
         base_time: float | None = None
@@ -94,14 +97,11 @@ class Group:
         for check in self._checks:
             print(f'  {colors.magenta(check.name)}', file=stream)
             result = check.run()
-            text = result.get_text(colors=colors, base_time=base_time)
-            print(text, file=stream)
+            print(result.get_text(colors=colors, base_time=base_time), file=stream)
             if base_time is None:
                 base_time = result.best
             if opcodes:
-                opcodes_text = f'{check.count_opcodes():,}'.replace(',', ' ')
-                opcodes_text = f'{opcodes_text:>12}'
-                print(f'    opcodes: {colors.cyan(opcodes_text)}', file=stream)
+                print(result.format_opcodes(check.count_opcodes()), file=stream)
 
     def iter(self) -> Iterator[Result]:
         """Iterate over all benchmarks and run them.
