@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from functools import cached_property
-import math
 
 from ._colors import DEFAULT_COLORS, Colors
 

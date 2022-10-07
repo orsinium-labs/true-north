@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 import gc
+from dataclasses import dataclass
 from typing import Callable, Iterable
 
-from ._loopers import TotalLooper, Timer, EachLooper, OpcodeLooper
+from ._loopers import EachLooper, OpcodeLooper, Timer, TotalLooper
 from ._result import Result
 
 

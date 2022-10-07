@@ -1,5 +1,6 @@
 from io import StringIO
-from true_north import Group, Colors
+
+from true_north import Colors, Group
 
 
 def test_smoke():

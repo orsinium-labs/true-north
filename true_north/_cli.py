@@ -1,13 +1,14 @@
 from __future__ import annotations
-import argparse
 
+import argparse
 import sys
 from argparse import ArgumentParser
 from pathlib import Path
 from typing import Iterator, NoReturn, TextIO
 
-from ._colors import Colors, DEFAULT_COLORS
+from ._colors import DEFAULT_COLORS, Colors
 from ._group import Group
+
 
 try:
     import ipdb as pdb

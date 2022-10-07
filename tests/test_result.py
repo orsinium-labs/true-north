@@ -1,6 +1,8 @@
 import math
+
 import pytest
-from true_north import Result, Colors
+
+from true_north import Colors, Result
 from true_north._result import format_time
 
 
