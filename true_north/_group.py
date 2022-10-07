@@ -97,15 +97,11 @@ class Group:
         for check in self._checks:
             print(f'  {colors.magenta(check.name)}', file=stream)
             result = check.run()
-            text = result.get_text(colors=colors, base_time=base_time)
-            print(text, file=stream)
+            print(result.get_text(colors=colors, base_time=base_time), file=stream)
             if base_time is None:
                 base_time = result.best
             if opcodes:
-                opcodes_count = check.count_opcodes()
-                opcodes_text = colors.cyan(opcodes_count, rjust=12, group=True)
-                ns_op = colors.cyan(int(result.best * 1e9 // opcodes_count), rjust=4)
-                print(f'    {opcodes_text} ops, {ns_op} ns/op', file=stream)
+                print(result.format_opcodes(check.count_opcodes()), file=stream)
 
     def iter(self) -> Iterator[Result]:
         """Iterate over all benchmarks and run them.

@@ -121,6 +121,18 @@ class Result:
 
         return ''
 
+    def format_opcodes(
+        self,
+        opcodes: int,
+        colors: Colors = DEFAULT_COLORS,
+        ident: int = 4,
+    ) -> str:
+        """Generate a human-friendly representation of opcodes report.
+        """
+        opcodes_text = colors.cyan(opcodes, rjust=12, group=True)
+        ns_op = colors.cyan(int(self.best * 1e9 // opcodes), rjust=4)
+        return ' ' * ident + f'{opcodes_text} ops, {ns_op} ns/op'
+
 
 def format_time(dt: float, colors: Colors) -> str:
     for scale, unit in SCALES:
