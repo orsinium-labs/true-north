@@ -30,18 +30,6 @@ class Result:
         return min(self.total_timings)
 
     @cached_property
-    def fastest(self) -> float:
-        """The fastest individual iteration.
-        """
-        return min(self.each_timings)
-
-    @cached_property
-    def slowest(self) -> float:
-        """The slowest individual iteration.
-        """
-        return max(self.each_timings)
-
-    @cached_property
     def histogram(self) -> str:
         """Histogram of timings (repeats).
         """
@@ -63,22 +51,11 @@ class Result:
     ) -> str:
         """Represent the result as a line of text.
         """
-        result = ''
-
-        # warnings
-        ratio = self.each_timings[0] / self.each_timings[1]
-        if ratio > 2:
-            warn = 'possible caching detected'
-            descr = f'first result x{ratio:.0f} slower than second'
-            result += f'    {colors.yellow(warn)}: {descr}\n'
+        warning = self._get_warning(colors=colors)
+        if warning:
+            result = f'    {warning}\n'
         else:
-            ratio = self.slowest / self.fastest
-            if ratio > 10:
-                warn = 'possible side-effect detected'
-                descr = f'slowest result x{ratio:.0f} slower than fastest'
-                result += f'    {colors.yellow(warn)}: {descr}\n'
-
-        # timing report
+            result = ''
         result += '    {loops:4} loops, best of {repeat}: {best}'.format(
             loops=format_amount(self.loops),
             repeat=len(self.total_timings),
@@ -98,6 +75,37 @@ class Result:
             result += ' ' * 16
         result += f' {self.histogram}'
         return result
+
+    def _get_warning(self, colors: Colors) -> str:
+        first = self.each_timings[0]
+        second = self.each_timings[1]
+        if second != 0 and first > 1e-6:
+            ratio = first / second
+            if ratio > 2:
+                warn = 'possible caching detected'
+                descr = f'first iteration x{ratio:.0f} slower than second'
+                return f'{colors.yellow(warn)}: {descr}'
+
+        fastest = min(self.each_timings)
+        if fastest == 0:
+            warn = 'the fastest time is 0'
+            descr = 'the timer function is not detailed enough'
+            return f'{colors.yellow(warn)}: {descr}'
+
+        if fastest < 0:
+            warn = 'the fastest time is negative'
+            descr = 'the timer function is not monotonic'
+            return f'{colors.yellow(warn)}: {descr}'
+
+        slowest = max(self.each_timings)
+        if slowest > 1e-6:
+            ratio = slowest / fastest
+            if ratio > 4:
+                warn = 'possible side-effect detected'
+                descr = f'slowest iteration x{ratio:.0f} slower than fastest'
+                return f'{colors.yellow(warn)}: {descr}'
+
+        return ''
 
 
 def format_time(dt: float, colors: Colors) -> str:
