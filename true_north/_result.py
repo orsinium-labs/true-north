@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import cached_property
+import math
 
 from ._colors import DEFAULT_COLORS, Colors
 
@@ -44,6 +45,14 @@ class Result:
             histogram.append(TICKS[index])
         return ''.join(histogram)
 
+    @cached_property
+    def stdev(self) -> float:
+        """Standard deviation of loops in a single repeat.
+        """
+        ts = self.each_timings
+        mean = math.fsum(ts) / len(ts)
+        return (math.fsum((t - mean) ** 2 for t in ts) / len(ts)) ** 0.5
+
     def get_text(
         self,
         colors: Colors = DEFAULT_COLORS,
@@ -61,6 +70,7 @@ class Result:
             repeat=len(self.total_timings),
             best=format_time(self.best, colors=colors),
         )
+        result += f' ± {format_time(self.stdev, colors=colors)}'
         if base_time is not None:
             good = self.best < base_time
             if good:
