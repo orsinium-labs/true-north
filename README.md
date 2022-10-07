@@ -13,7 +13,19 @@ Features:
 + Nice and colorful output.
 + Ships with CLI to discover and run all benchmarks.
 
-![output example](./example.png)
+```plain
+sorting algorithms
+  list.sort
+    possible side-effect detected: slowest iteration x21 slower than fastest
+    5k   loops, best of 5:  43.579 us ±  12.681 us                 ████▇
+              11 ops, 3961 ns/op
+  sorted
+    5k   loops, best of 5:  43.911 us ±   3.697 us    x1.01 slower █████
+              11 ops, 3991 ns/op
+  insert_sort
+    2    loops, best of 5: 100.662 ms ± 111.725 us x2309.85 slower █████
+      11_683_767 ops,    8 ns/op
+```
 
 ## Installation
 
@@ -50,8 +62,6 @@ If you run CLI with `--opcodes` or call `Group.print` with `opcodes=True`, the o
 1. Different version of Python produce different number of opcodes. Always run benchmarks on the same Python interpreter.
 1. Tracing opcodes requires true-north to register multiple tracing hooks, which slows down the code execution. It won't affect the timing benchmarks, but it will take more time to run the suite.
 1. More opcodes doesn't mean slower code. Different opcodes take different time to run. In particular, calling a C function (like `sorted`) is just one opcode. However, if you compare two pure Python functions that don't use call anything heavy, opcodes will roughly correlate with the execution time.
-
-![output example with opcodes](./opcodes.png)
 
 ## Reading output
 
