@@ -84,6 +84,7 @@ class Group:
         stream: TextIO = sys.stdout,
         colors: Colors = DEFAULT_COLORS,
         opcodes: bool = False,
+        allocations: bool = False,
     ) -> None:
         """Run all benchmarks in the group and print their results.
 
@@ -91,6 +92,7 @@ class Group:
             stream: the stream where to write all output.
                 Default is stdout.
             opcodes: count opcodes. Slow but reproducible.
+            allocations: track memory allocations. Slow but interesting.
         """
         base_time: float | None = None
         print(colors.blue(self.name), file=stream)
@@ -100,6 +102,7 @@ class Group:
                 colors=colors,
                 opcodes=opcodes,
                 base_time=base_time,
+                allocations=allocations,
             )
             if base_time is None:
                 base_time = result.best

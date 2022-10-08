@@ -50,6 +50,7 @@ def run_all_groups(path: Path, args: argparse.Namespace, stdout: TextIO) -> None
         group.print(
             stream=stdout,
             opcodes=args.opcodes,
+            allocations=args.allocations,
             colors=colors,
         )
 
@@ -60,6 +61,10 @@ def main(argv: list[str], stdout: TextIO) -> int:
     parser.add_argument(
         '--opcodes', action='store_true',
         help='Count opcodes. Slow but reproducible.'
+    )
+    parser.add_argument(
+        '--allocations', action='store_true',
+        help='Count memory allocations. Slow but fun.'
     )
     parser.add_argument(
         '--no-color', action='store_true',

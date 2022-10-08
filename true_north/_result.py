@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import cached_property
 
 from ._colors import DEFAULT_COLORS, Colors
@@ -23,7 +23,11 @@ class Result:
     total_timings: list[float]
     each_timings: list[float]
     loops: int
+
+    # not calculated by default
     opcodes: int = 0
+    lines: int = 0
+    allocations: list[int] = field(default_factory=list)
 
     @property
     def best(self) -> float:
@@ -118,11 +122,19 @@ class Result:
         return ''
 
     def format_opcodes(self, colors: Colors = DEFAULT_COLORS) -> str:
-        """Generate a human-friendly representation of opcodes report.
+        """Generate a human-friendly representation of opcodes.
         """
-        opcodes_text = colors.cyan(self.opcodes, rjust=12, group=True)
-        ns_op = colors.cyan(int(self.best * 1e9 // self.opcodes), rjust=4)
-        return f'    {opcodes_text} ops, {ns_op} ns/op'
+        opcodes = colors.cyan(self.opcodes, rjust=12, group=True)
+        ns_op = colors.cyan(int(self.best * 1e9 // self.opcodes), rjust=9)
+        lines = colors.cyan(self.lines, rjust=12, group=True)
+        return f'    {opcodes} ops, {ns_op} ns/op {lines} lines'
+
+    def format_allocations(self, colors: Colors = DEFAULT_COLORS) -> str:
+        """Generate a human-friendly representation of memory allocations.
+        """
+        allocs = colors.magenta(len(self.allocations), rjust=12, group=True)
+        peak = colors.magenta(max(self.allocations) / (2 ** 20), rjust=5, precision=2)
+        return f'    {allocs} samples, {peak} MiB peak'
 
 
 def format_time(dt: float, colors: Colors) -> str:

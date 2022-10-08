@@ -5,7 +5,7 @@ from dataclasses import dataclass
 import sys
 from typing import Callable, Iterable, TextIO
 
-from ._loopers import EachLooper, OpcodeLooper, Timer, TotalLooper
+from ._loopers import EachLooper, OpcodeLooper, Timer, TotalLooper, MemoryLooper
 from ._result import Result
 from ._colors import DEFAULT_COLORS, Colors
 
@@ -31,6 +31,7 @@ class Check:
         stream: TextIO = sys.stdout,
         colors: Colors = DEFAULT_COLORS,
         opcodes: bool = False,
+        allocations: bool = False,
         base_time: float | None = None,
     ) -> Result:
         print(f'  {colors.magenta(self.name)}', file=stream)
@@ -39,9 +40,14 @@ class Check:
         if warning:
             print(warning, file=stream)
         print(result.format_timing(colors=colors, base_time=base_time), file=stream)
-        result.opcodes = self.count_opcodes()
         if opcodes:
+            opcode_looper = self._count_opcodes()
+            result.opcodes = opcode_looper.opcodes
+            result.lines = opcode_looper.lines
             print(result.format_opcodes(), file=stream)
+        if allocations:
+            result.allocations = self._count_allocations(lines=result.lines)
+            print(result.format_allocations(), file=stream)
         return result
 
     def run(self) -> Result:
@@ -81,12 +87,22 @@ class Check:
         assert len(looper.timings) == loops
         return looper.timings
 
-    def count_opcodes(self, loops: int = 1) -> int:
+    def _count_opcodes(self, loops: int = 1) -> OpcodeLooper:
         """Run the benchmark and count executed opcodes.
         """
         looper = OpcodeLooper(loops=loops)
         self._run(looper)
-        return looper.count
+        return looper
+
+    def _count_allocations(self, lines: int) -> list[int]:
+        period = max(1, round(lines / 300_000))
+        looper = MemoryLooper(
+            loops=1,
+            snapshots=[],
+            period=period,
+        )
+        self._run(looper)
+        return looper.snapshots
 
     def _run(self, looper: Iterable[int]) -> None:
         gc_was_enabled = gc.isenabled()

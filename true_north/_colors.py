@@ -28,7 +28,10 @@ def _color(color: str) -> Callable[..., str]:
         *,
         rjust: int | None = None,
         group: bool = False,
+        precision: int | None = None
     ) -> str:
+        if precision:
+            text = f'{text:.{precision}f}'
         if group and len(str(text)) > 4:
             text = f'{text:,}'.replace(',', '_')
         if rjust:
