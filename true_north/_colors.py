@@ -18,6 +18,12 @@ UNITS = {
     'ms': YELLOW,
     'us': GREEN,
     'ns': CYAN,
+
+    'B  ': CYAN,
+    'KiB': GREEN,
+    'MiB': YELLOW,
+    'GiB': RED,
+    'TiB': RED,
 }
 
 

@@ -133,8 +133,8 @@ class Result:
         """Generate a human-friendly representation of memory allocations.
         """
         allocs = colors.magenta(len(self.allocations), rjust=12, group=True)
-        peak = colors.magenta(max(self.allocations) / (2 ** 20), rjust=5, precision=2)
-        return f'    {allocs} samples, {peak} MiB peak'
+        peak = format_size(max(self.allocations), colors=colors)
+        return f'    {allocs} samples, {peak} peak'
 
 
 def format_time(dt: float, colors: Colors) -> str:
@@ -150,3 +150,16 @@ def format_amount(number: float, k: int = 0) -> str:
         suffix = 'k' * k
         return f'{number:.0f}{suffix}'
     return format_amount(number / 1000, k + 1)
+
+
+def format_size(size: float, colors: Colors) -> str:
+    for unit in ('B  ', 'KiB', 'MiB', 'GiB', 'TiB'):
+        if abs(size) < 100 and unit != 'B':
+            size_text = colors.magenta(size, rjust=5, precision=1)
+            return f'{size_text} {colors.color_unit(unit)}'
+        if abs(size) < 10 * 1024 or unit == 'TiB':
+            # 4 or 5 digits (xxxx UNIT)
+            size_text = colors.magenta(int(size), rjust=5)
+            return f'{size_text} {colors.color_unit(unit)}'
+        size /= 1024
+    raise RuntimeError
