@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import gc
 from dataclasses import dataclass
-from typing import Callable, Iterable
+import sys
+from typing import Callable, Iterable, TextIO
 
 from ._loopers import EachLooper, OpcodeLooper, Timer, TotalLooper
 from ._result import Result
+from ._colors import DEFAULT_COLORS, Colors
 
 
 Func = Callable[[Iterable[int]], None]
@@ -23,6 +25,24 @@ class Check:
     repeats: int
     min_time: float
     timer: Timer
+
+    def print(
+        self,
+        stream: TextIO = sys.stdout,
+        colors: Colors = DEFAULT_COLORS,
+        opcodes: bool = False,
+        base_time: float | None = None,
+    ) -> Result:
+        print(f'  {colors.magenta(self.name)}', file=stream)
+        result = self.run()
+        warning = result.format_warning(colors=colors)
+        if warning:
+            print(warning, file=stream)
+        print(result.format_timing(colors=colors, base_time=base_time), file=stream)
+        result.opcodes = self.count_opcodes()
+        if opcodes:
+            print(result.format_opcodes(), file=stream)
+        return result
 
     def run(self) -> Result:
         """Run benchmarks for the check.

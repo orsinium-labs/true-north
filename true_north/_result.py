@@ -17,12 +17,13 @@ TICKS = '▁▂▃▄▅▆▇█'
 CHUNKS = len(TICKS) - 1
 
 
-@dataclass(frozen=True)
+@dataclass
 class Result:
     name: str
     total_timings: list[float]
     each_timings: list[float]
     loops: int
+    opcodes: int = 0
 
     @property
     def best(self) -> float:
@@ -57,19 +58,14 @@ class Result:
         mean = math.fsum(ts) / len(ts)
         return (math.fsum((t - mean) ** 2 for t in ts) / len(ts)) ** 0.5
 
-    def get_text(
+    def format_timing(
         self,
         colors: Colors = DEFAULT_COLORS,
         base_time: float | None = None,
     ) -> str:
         """Represent the result as a line of text.
         """
-        warning = self._get_warning(colors=colors)
-        if warning:
-            result = f'    {warning}\n'
-        else:
-            result = ''
-        result += '    {loops:4} loops, best of {repeat}: {best}'.format(
+        result = '    {loops:4} loops, best of {repeat}: {best}'.format(
             loops=format_amount(self.loops),
             repeat=len(self.total_timings),
             best=format_time(self.best, colors=colors),
@@ -90,7 +86,7 @@ class Result:
         result += f' {self.histogram}'
         return result
 
-    def _get_warning(self, colors: Colors) -> str:
+    def format_warning(self, colors: Colors = DEFAULT_COLORS) -> str:
         first = self.each_timings[0]
         second = self.each_timings[1]
         if second != 0 and first > 1e-6:
@@ -121,17 +117,12 @@ class Result:
 
         return ''
 
-    def format_opcodes(
-        self,
-        opcodes: int,
-        colors: Colors = DEFAULT_COLORS,
-        ident: int = 4,
-    ) -> str:
+    def format_opcodes(self, colors: Colors = DEFAULT_COLORS) -> str:
         """Generate a human-friendly representation of opcodes report.
         """
-        opcodes_text = colors.cyan(opcodes, rjust=12, group=True)
-        ns_op = colors.cyan(int(self.best * 1e9 // opcodes), rjust=4)
-        return ' ' * ident + f'{opcodes_text} ops, {ns_op} ns/op'
+        opcodes_text = colors.cyan(self.opcodes, rjust=12, group=True)
+        ns_op = colors.cyan(int(self.best * 1e9 // self.opcodes), rjust=4)
+        return f'    {opcodes_text} ops, {ns_op} ns/op'
 
 
 def format_time(dt: float, colors: Colors) -> str:

@@ -95,13 +95,14 @@ class Group:
         base_time: float | None = None
         print(colors.blue(self.name), file=stream)
         for check in self._checks:
-            print(f'  {colors.magenta(check.name)}', file=stream)
-            result = check.run()
-            print(result.get_text(colors=colors, base_time=base_time), file=stream)
+            result = check.print(
+                stream=stream,
+                colors=colors,
+                opcodes=opcodes,
+                base_time=base_time,
+            )
             if base_time is None:
                 base_time = result.best
-            if opcodes:
-                print(result.format_opcodes(check.count_opcodes()), file=stream)
 
     def iter(self) -> Iterator[Result]:
         """Iterate over all benchmarks and run them.
