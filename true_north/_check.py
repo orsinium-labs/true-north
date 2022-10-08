@@ -95,7 +95,7 @@ class Check:
         return looper
 
     def _count_allocations(self, lines: int) -> list[int]:
-        period = max(1, round(lines / 300_000))
+        period = max(1, round(lines / 200))
         looper = MemoryLooper(
             loops=1,
             snapshots=[],

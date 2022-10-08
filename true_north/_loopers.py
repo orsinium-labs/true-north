@@ -103,7 +103,6 @@ class MemoryLooper:
                 total = 0
                 for trace in snapshot.traces:
                     total += trace.size
-                    break
                 self.snapshots.append(total)
 
     def gtracer(self, frame, event: str, arg):
