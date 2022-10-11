@@ -17,6 +17,6 @@ class OpcodesResult:
         """Generate a human-friendly representation of opcodes.
         """
         opcodes = colors.cyan(self.opcodes, rjust=12, group=True)
-        ns_op = colors.cyan(int(self.best * 1e9 // self.opcodes), rjust=9)
+        ns_op = colors.cyan(int(self.best * 1e9 // self.opcodes), rjust=8)
         lines = colors.cyan(self.lines, rjust=12, group=True)
-        return f'    {opcodes} ops, {ns_op} ns/op {lines} lines'
+        return f'    {opcodes} ops {ns_op} ns/op {lines} lines'

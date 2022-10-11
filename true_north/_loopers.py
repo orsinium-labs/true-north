@@ -1,9 +1,10 @@
 from __future__ import annotations
+from collections import Counter
 from contextlib import contextmanager
 
 import inspect
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import tracemalloc
 from types import FrameType
 from typing import Callable, Iterator
@@ -96,10 +97,12 @@ class OpcodeLooper:
 
 @dataclass
 class MemoryLooper:
-    loops: int
-    snapshots: list[int]
     period: int
+    loops: int = 1
     lines: int = 0
+    snapshots: list[int] = field(default_factory=list)
+    allocs: list[Counter[str]] = field(default_factory=list)
+    _prev_allocs: Counter[str] = field(default_factory=Counter)
 
     def ltracer(self, frame, event: str, arg):
         """Local tracer attached to each function.
@@ -109,9 +112,15 @@ class MemoryLooper:
             if self.lines % self.period == 0:
                 snapshot = tracemalloc.take_snapshot()
                 total = 0
+                allocs: Counter[str] = Counter()
                 for trace in snapshot.traces:
                     total += trace.size
+                    file_name = trace.traceback[-1].filename
+                    allocs[file_name] += 1
                 self.snapshots.append(total)
+                diff = allocs - self._prev_allocs
+                self.allocs.append(diff)
+                self._prev_allocs = allocs
 
     def gtracer(self, frame, event: str, arg):
         """Global tracer executed for all functions.
@@ -120,11 +129,6 @@ class MemoryLooper:
             return self.ltracer
 
     def __iter__(self) -> Iterator[int]:
-        frame = inspect.currentframe()
-        assert frame
-        frame = frame.f_back
-        assert frame
-
         tracemalloc.start()
         self.snapshots = []
         with tracer_context(self.gtracer):

@@ -13,7 +13,7 @@ from ._colors import DEFAULT_COLORS, Colors
 Func = Callable[[Iterable[int]], None]
 
 
-@dataclass
+@dataclass(frozen=True)
 class Check:
     """A single benchmark.
 
@@ -97,14 +97,13 @@ class Check:
         )
 
     def _count_mallocs(self, lines: int) -> MallocResult:
-        period = max(1, round(lines / 4000))
-        looper = MemoryLooper(
-            loops=1,
-            snapshots=[],
-            period=period,
-        )
+        period = max(1, round(lines / 500))
+        looper = MemoryLooper(period=period)
         self.func(looper)
-        return MallocResult(totals=looper.snapshots)
+        return MallocResult(
+            totals=looper.snapshots,
+            allocs=looper.allocs,
+        )
 
     def _run(self, looper: Iterable[int]) -> None:
         gc_was_enabled = gc.isenabled()
