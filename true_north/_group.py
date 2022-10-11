@@ -4,12 +4,11 @@ import inspect
 import os
 import sys
 from time import perf_counter
-from typing import Callable, Iterator, TextIO
+from typing import Callable, TextIO
 
 from ._check import Check, Func
 from ._colors import DEFAULT_COLORS, Colors
 from ._loopers import Timer
-from ._result import Result
 
 
 class Group:
@@ -106,9 +105,3 @@ class Group:
             )
             if base_time is None:
                 base_time = result.best
-
-    def iter(self) -> Iterator[Result]:
-        """Iterate over all benchmarks and run them.
-        """
-        for check in self._checks:
-            yield check.run()

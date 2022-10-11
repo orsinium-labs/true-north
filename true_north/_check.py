@@ -6,7 +6,7 @@ import sys
 from typing import Callable, Iterable, TextIO
 
 from ._loopers import EachLooper, OpcodeLooper, Timer, TotalLooper, MemoryLooper
-from ._result import Result
+from ._results import TimingResult
 from ._colors import DEFAULT_COLORS, Colors
 
 
@@ -33,7 +33,7 @@ class Check:
         opcodes: bool = False,
         allocations: bool = False,
         base_time: float | None = None,
-    ) -> Result:
+    ) -> TimingResult:
         print(f'  {colors.magenta(self.name)}', file=stream)
         result = self.run()
         warning = result.format_warning(colors=colors)
@@ -50,7 +50,7 @@ class Check:
             print(result.format_allocations(), file=stream)
         return result
 
-    def run(self) -> Result:
+    def run(self) -> TimingResult:
         """Run benchmarks for the check.
         """
         # to detect caching, we should individually record
@@ -69,7 +69,7 @@ class Check:
         for _ in range(repeats):
             total_timings.append(self.run_once(loops))
         assert len(total_timings) == self.repeats
-        return Result(
+        return TimingResult(
             name=self.name,
             total_timings=[dt / loops for dt in total_timings],
             each_timings=each_timings,

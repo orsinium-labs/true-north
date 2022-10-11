@@ -2,8 +2,9 @@ import math
 
 import pytest
 
-from true_north import Colors, Result
-from true_north._result import format_time
+from true_north import Colors
+from true_north._results import TimingResult
+from true_north._results._formatters import format_time
 
 
 @pytest.mark.parametrize('timings, hist', [
@@ -23,7 +24,7 @@ from true_north._result import format_time
     ([0, 3],        '▁█'),
 ])
 def test_hisogram(timings, hist):
-    r = Result(
+    r = TimingResult(
         name='',
         total_timings=timings,
         each_timings=[],
@@ -43,7 +44,7 @@ def test_hisogram(timings, hist):
     ([4, 5, 6, 7],  1.118033988749895),
 ])
 def test_stdev(timings, stdev):
-    r = Result(
+    r = TimingResult(
         name='',
         total_timings=[1, 2, 3],
         each_timings=timings,
@@ -53,13 +54,13 @@ def test_stdev(timings, stdev):
 
 
 def test_get_text():
-    r = Result(
+    r = TimingResult(
         name='',
         total_timings=[1, 2, 3],
         each_timings=[4, 5, 6, 7],
         loops=4,
     )
-    actual = r.get_text(colors=Colors(disabled=True))
+    actual = r.format_timing(colors=Colors(disabled=True))
     exp = '    4    loops, best of 3:   1.000 s  ±   1.118 s                  ▃▆█'
     assert actual == exp
 
