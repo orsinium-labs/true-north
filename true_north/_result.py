@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 from functools import cached_property
+from typing import Iterator, Sequence
 
 from ._colors import DEFAULT_COLORS, Colors
 
@@ -39,16 +40,7 @@ class Result:
     def histogram(self) -> str:
         """Histogram of timings (repeats).
         """
-        worst = max(self.total_timings, default=0)
-        if worst == 0:
-            return TICKS[-1] * len(self.total_timings)
-
-        histogram = []
-        for time in self.total_timings:
-            ratio = time / worst
-            index = int(round(ratio * CHUNKS))
-            histogram.append(TICKS[index])
-        return ''.join(histogram)
+        return make_histogram(self.total_timings)
 
     @cached_property
     def stdev(self) -> float:
@@ -132,9 +124,18 @@ class Result:
     def format_allocations(self, colors: Colors = DEFAULT_COLORS) -> str:
         """Generate a human-friendly representation of memory allocations.
         """
-        allocs = colors.magenta(len(self.allocations), rjust=12, group=True)
+        samples = colors.magenta(len(self.allocations), rjust=12, group=True)
         peak = format_size(max(self.allocations), colors=colors)
-        return f'    {allocs} samples, {peak} peak'
+        bars: Sequence[float]
+        if len(self.allocations) < 20:
+            bars = self.allocations
+        else:
+            bars = []
+            for chunk in chunks(self.allocations, 20):
+                mean = math.fsum(chunk) / len(chunk)
+                bars.append(mean)
+        hist = make_histogram(bars)
+        return f'    {samples} samples, {peak} peak {hist}'
 
 
 def format_time(dt: float, colors: Colors) -> str:
@@ -163,3 +164,22 @@ def format_size(size: float, colors: Colors) -> str:
             return f'{size_text} {colors.color_unit(unit)}'
         size /= 1024
     raise RuntimeError
+
+
+def chunks(items: list[int], count: int) -> Iterator[list[int]]:
+    size = math.ceil(len(items) / count)
+    for i in range(0, len(items), size):
+        yield items[i:i + size]
+
+
+def make_histogram(items: Sequence[float]):
+    worst = max(items, default=0)
+    if worst == 0:
+        return TICKS[-1] * len(items)
+
+    histogram = []
+    for item in items:
+        ratio = item / worst
+        index = int(round(ratio * CHUNKS))
+        histogram.append(TICKS[index])
+    return ''.join(histogram)

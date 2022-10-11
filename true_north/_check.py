@@ -101,7 +101,7 @@ class Check:
             snapshots=[],
             period=period,
         )
-        self._run(looper)
+        self.func(looper)
         return looper.snapshots
 
     def _run(self, looper: Iterable[int]) -> None:
