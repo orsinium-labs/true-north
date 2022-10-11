@@ -6,7 +6,7 @@ import sys
 from typing import Callable, Iterable, TextIO
 
 from ._loopers import EachLooper, OpcodeLooper, Timer, TotalLooper, MemoryLooper
-from ._results import TimingResult, MallocResult
+from ._results import TimingResult, MallocResult, OpcodesResult
 from ._colors import DEFAULT_COLORS, Colors
 
 
@@ -40,13 +40,11 @@ class Check:
         if warning:
             print(warning, file=stream)
         print(tresult.format(colors=colors, base_time=base_time), file=stream)
-        if opcodes:
-            opcode_looper = self._count_opcodes()
-            tresult.opcodes = opcode_looper.opcodes
-            tresult.lines = opcode_looper.lines
-            print(tresult.format_opcodes(), file=stream)
+        if allocations or opcodes:
+            oresult = self._count_opcodes(best=tresult.best)
+            print(oresult.format(), file=stream)
         if allocations:
-            mresult = self._count_mallocs(lines=tresult.lines)
+            mresult = self._count_mallocs(lines=oresult.lines)
             print(mresult.format(), file=stream)
         return tresult
 
@@ -87,12 +85,16 @@ class Check:
         assert len(looper.timings) == loops
         return looper.timings
 
-    def _count_opcodes(self, loops: int = 1) -> OpcodeLooper:
+    def _count_opcodes(self, loops: int = 1, best: float = 0) -> OpcodesResult:
         """Run the benchmark and count executed opcodes.
         """
         looper = OpcodeLooper(loops=loops)
         self._run(looper)
-        return looper
+        return OpcodesResult(
+            opcodes=looper.opcodes,
+            lines=looper.lines,
+            best=best,
+        )
 
     def _count_mallocs(self, lines: int) -> MallocResult:
         period = max(1, round(lines / 4000))

@@ -15,10 +15,6 @@ class TimingResult:
     each_timings: list[float]
     loops: int
 
-    # not calculated by default
-    opcodes: int = 0
-    lines: int = 0
-
     @property
     def best(self) -> float:
         """The best of all timings (repeats).
@@ -101,11 +97,3 @@ class TimingResult:
                 return f'{colors.yellow(warn)}: {descr}'
 
         return ''
-
-    def format_opcodes(self, colors: Colors = DEFAULT_COLORS) -> str:
-        """Generate a human-friendly representation of opcodes.
-        """
-        opcodes = colors.cyan(self.opcodes, rjust=12, group=True)
-        ns_op = colors.cyan(int(self.best * 1e9 // self.opcodes), rjust=9)
-        lines = colors.cyan(self.lines, rjust=12, group=True)
-        return f'    {opcodes} ops, {ns_op} ns/op {lines} lines'
