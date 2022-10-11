@@ -10,7 +10,7 @@ from .._colors import DEFAULT_COLORS, Colors
 from ._formatters import make_histogram, format_size
 
 
-CHUNKS = 12
+CHUNKS = 14
 
 
 def chunks(items: list[int], count: int) -> Iterator[list[int]]:
@@ -42,5 +42,5 @@ class MallocResult:
             for chunk in chunks(self.totals, CHUNKS):
                 mean = math.fsum(chunk) / len(chunk)
                 bars.append(mean)
-        hist = make_histogram(bars)
+        hist = colors.magenta(make_histogram(bars))
         return f'    {total_allocs} allocs {used} used {samples} samples  {hist}'

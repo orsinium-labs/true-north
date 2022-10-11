@@ -75,18 +75,18 @@ class TimingResult:
             if ratio > 2:
                 warn = 'possible caching detected'
                 descr = f'first iteration x{ratio:.0f} slower than second'
-                return f'{colors.yellow(warn)}: {descr}'
+                return f'    {colors.yellow(warn)}: {descr}'
 
         fastest = min(self.each_timings)
         if fastest == 0:
             warn = 'the fastest time is 0'
             descr = 'the timer function is not detailed enough'
-            return f'{colors.yellow(warn)}: {descr}'
+            return f'    {colors.yellow(warn)}: {descr}'
 
         if fastest < 0:
             warn = 'the fastest time is negative'
             descr = 'the timer function is not monotonic'
-            return f'{colors.yellow(warn)}: {descr}'
+            return f'    {colors.yellow(warn)}: {descr}'
 
         slowest = max(self.each_timings)
         if slowest > 1e-6:
@@ -94,6 +94,6 @@ class TimingResult:
             if ratio > 4:
                 warn = 'possible side-effect detected'
                 descr = f'slowest iteration x{ratio:.0f} slower than fastest'
-                return f'{colors.yellow(warn)}: {descr}'
+                return f'    {colors.yellow(warn)}: {descr}'
 
         return ''

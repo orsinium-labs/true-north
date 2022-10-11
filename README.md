@@ -72,7 +72,8 @@ sorting algorithms
   <...omitted some results...>
   heap_sort
     1k   loops, best of 5: 240.487 us ±   4.723 us    x5.68 slower █████
-          10_022 ops,   23 ns/op
+          10_031 ops       18 ns/op         2010 lines
+            1438 allocs   139 KiB used       501 samples  ▂▂▂▃▃▄▄▅▅▆▆▇██
 ```
 
 + `sorting algorithms`: the group name.
@@ -83,5 +84,9 @@ sorting algorithms
 + `± 4.723 us`: the standard deviation of each loop iteration is 4.723 microseconds. It is a good value. If it gets close to the average execution time, though, the results aren't reliable. I there was only one loop, the standard deviation will be calculated for all repeats instead.
 + `x5.68 slower`: the average execution time is 5.7 times slower that that of the base benchmark. The base benchmark is the first one in the group. It's always a good idea to have a base benchmark you compare other results to. For example, if you compare your library against other libraries, put the benchmark for your library first to see how you're doing compared to others.
 + `█████`: a histogram where each block represents one repeat (benchmarking function call). The minimum value is 0 and the maximum value is the slowest repeat. If all blocks of the same size, results are good. If you see fluctation in their size, results aren't so reliable, and something affects benchmarks too much. To fix it, you can try to explicitly set a higher value for `loops` argument.
-+ `10_022 ops`: a single loop executed 10022 opcodes. Read the section above to learn more about opcodes.
-+ `23 ns/op`: execution of each opcode took on average 23 nanoseconds.
++ `10_031 ops`: a single loop executed 10031 opcodes. Read the section above to learn more about opcodes.
++ `18 ns/op`: execution of each opcode took on average 18 nanoseconds.
++ `2010 lines`: when tracing opcodes, 2010 lines of code were executed. If a line is executed twice, it is counted twice. See [lnotab_notes.txt](https://github.com/python/cpython/blob/main/Objects/lnotab_notes.txt) on what Python considers a line of code. You shouldn't optimize your code for fewer lines (or opcodes) but this number can reveal to you unexpected randomness in your code.
++ `1438 allocs`: how many [memory allocations](https://www.cs.uah.edu/~rcoleman/Common/C_Reference/MemoryAlloc.html) happened during one loop. Sampling memory is expensive, so to keep the benchmark execution time reasonable true-north will collect the sample only after some operations, not all of them. So, the real number might be higher.
++ `139 KiB used`: the size of the biggest memory sample collected. The same as for allocations, the real number might be higher.
++ `501 samples`: how many memory samples were collected. The default value is about 500.
