@@ -6,7 +6,7 @@ import sys
 from typing import Callable, Iterable, TextIO
 
 from ._loopers import EachLooper, OpcodeLooper, Timer, TotalLooper, MemoryLooper
-from ._results import TimingResult
+from ._results import TimingResult, MallocResult
 from ._colors import DEFAULT_COLORS, Colors
 
 
@@ -35,20 +35,20 @@ class Check:
         base_time: float | None = None,
     ) -> TimingResult:
         print(f'  {colors.magenta(self.name)}', file=stream)
-        result = self.run()
-        warning = result.format_warning(colors=colors)
+        tresult = self.run()
+        warning = tresult.format_warning(colors=colors)
         if warning:
             print(warning, file=stream)
-        print(result.format_timing(colors=colors, base_time=base_time), file=stream)
+        print(tresult.format(colors=colors, base_time=base_time), file=stream)
         if opcodes:
             opcode_looper = self._count_opcodes()
-            result.opcodes = opcode_looper.opcodes
-            result.lines = opcode_looper.lines
-            print(result.format_opcodes(), file=stream)
+            tresult.opcodes = opcode_looper.opcodes
+            tresult.lines = opcode_looper.lines
+            print(tresult.format_opcodes(), file=stream)
         if allocations:
-            result.allocations = self._count_allocations(lines=result.lines)
-            print(result.format_allocations(), file=stream)
-        return result
+            mresult = self._count_mallocs(lines=tresult.lines)
+            print(mresult.format(), file=stream)
+        return tresult
 
     def run(self) -> TimingResult:
         """Run benchmarks for the check.
@@ -94,7 +94,7 @@ class Check:
         self._run(looper)
         return looper
 
-    def _count_allocations(self, lines: int) -> list[int]:
+    def _count_mallocs(self, lines: int) -> MallocResult:
         period = max(1, round(lines / 4000))
         looper = MemoryLooper(
             loops=1,
@@ -102,7 +102,7 @@ class Check:
             period=period,
         )
         self.func(looper)
-        return looper.snapshots
+        return MallocResult(totals=looper.snapshots)
 
     def _run(self, looper: Iterable[int]) -> None:
         gc_was_enabled = gc.isenabled()

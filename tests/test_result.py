@@ -60,7 +60,7 @@ def test_get_text():
         each_timings=[4, 5, 6, 7],
         loops=4,
     )
-    actual = r.format_timing(colors=Colors(disabled=True))
+    actual = r.format(colors=Colors(disabled=True))
     exp = '    4    loops, best of 3:   1.000 s  ±   1.118 s                  ▃▆█'
     assert actual == exp
 

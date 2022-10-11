@@ -1,18 +1,11 @@
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from functools import cached_property
-from typing import Iterator, Sequence
 
 from .._colors import DEFAULT_COLORS, Colors
-from ._formatters import make_histogram, format_size, format_time, format_amount
-
-
-def chunks(items: list[int], count: int) -> Iterator[list[int]]:
-    size = math.ceil(len(items) / count)
-    for i in range(0, len(items), size):
-        yield items[i:i + size]
+from ._formatters import make_histogram, format_time, format_amount
 
 
 @dataclass
@@ -25,7 +18,6 @@ class TimingResult:
     # not calculated by default
     opcodes: int = 0
     lines: int = 0
-    allocations: list[int] = field(default_factory=list)
 
     @property
     def best(self) -> float:
@@ -51,12 +43,12 @@ class TimingResult:
         mean = math.fsum(ts) / len(ts)
         return (math.fsum((t - mean) ** 2 for t in ts) / len(ts)) ** 0.5
 
-    def format_timing(
+    def format(
         self,
         colors: Colors = DEFAULT_COLORS,
         base_time: float | None = None,
     ) -> str:
-        """Represent the result as a line of text.
+        """Represent the timing result as a human-friendly text.
         """
         result = '    {loops:4} loops, best of {repeat}: {best}'.format(
             loops=format_amount(self.loops),
@@ -117,19 +109,3 @@ class TimingResult:
         ns_op = colors.cyan(int(self.best * 1e9 // self.opcodes), rjust=9)
         lines = colors.cyan(self.lines, rjust=12, group=True)
         return f'    {opcodes} ops, {ns_op} ns/op {lines} lines'
-
-    def format_allocations(self, colors: Colors = DEFAULT_COLORS) -> str:
-        """Generate a human-friendly representation of memory allocations.
-        """
-        samples = colors.magenta(len(self.allocations), rjust=12, group=True)
-        peak = format_size(max(self.allocations), colors=colors)
-        bars: Sequence[float]
-        if len(self.allocations) < 20:
-            bars = self.allocations
-        else:
-            bars = []
-            for chunk in chunks(self.allocations, 20):
-                mean = math.fsum(chunk) / len(chunk)
-                bars.append(mean)
-        hist = make_histogram(bars)
-        return f'    {samples} samples, {peak} peak {hist}'
