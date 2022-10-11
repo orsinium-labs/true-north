@@ -1,13 +1,13 @@
 from __future__ import annotations
-from collections import Counter
-from functools import cached_property
 
 import math
+from collections import Counter
 from dataclasses import dataclass
+from functools import cached_property
 from typing import Iterator, Sequence
 
 from .._colors import DEFAULT_COLORS, Colors
-from ._formatters import make_histogram, format_size
+from ._formatters import format_size, make_histogram
 
 
 CHUNKS = 14

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from functools import cached_property
 
 from .._colors import DEFAULT_COLORS, Colors
-from ._formatters import make_histogram, format_time, format_amount
+from ._formatters import format_amount, format_time, make_histogram
 
 
 @dataclass(frozen=True)

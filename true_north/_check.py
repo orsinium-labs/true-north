@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import gc
-from dataclasses import dataclass
 import sys
+from dataclasses import dataclass
 from typing import Callable, Iterable, TextIO
 
-from ._loopers import EachLooper, OpcodeLooper, Timer, TotalLooper, MemoryLooper
-from ._results import TimingResult, MallocResult, OpcodesResult
 from ._colors import DEFAULT_COLORS, Colors
+from ._loopers import (
+    EachLooper, MemoryLooper, OpcodeLooper, Timer, TotalLooper,
+)
+from ._results import MallocResult, OpcodesResult, TimingResult
 
 
 Func = Callable[[Iterable[int]], None]

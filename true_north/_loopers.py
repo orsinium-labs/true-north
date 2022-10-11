@@ -1,11 +1,11 @@
 from __future__ import annotations
-from collections import Counter
-from contextlib import contextmanager
 
 import inspect
 import sys
-from dataclasses import dataclass, field
 import tracemalloc
+from collections import Counter
+from contextlib import contextmanager
+from dataclasses import dataclass, field
 from types import FrameType
 from typing import Callable, Iterator
 
