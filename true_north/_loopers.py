@@ -1,4 +1,5 @@
 from __future__ import annotations
+from contextlib import contextmanager
 
 import inspect
 import sys
@@ -9,6 +10,16 @@ from typing import Callable, Iterator
 
 
 Timer = Callable[[], float]
+
+
+@contextmanager
+def tracer_context(tracer: Callable) -> Iterator:
+    old_tracer = sys.gettrace()
+    sys.settrace(tracer)
+    try:
+        yield
+    finally:
+        sys.settrace(old_tracer)
 
 
 @dataclass
@@ -49,7 +60,6 @@ class OpcodeLooper:
     loops: int
     opcodes: int = 0
     lines: int = 0
-    active: bool = False
 
     def ltracer(self, frame: FrameType, event: str, arg):
         if event == 'return':
@@ -63,7 +73,7 @@ class OpcodeLooper:
                 self.lines += 1
 
     def gtracer(self, frame, event: str, arg):
-        if self.active and event == 'call':
+        if event == 'call':
             return self.ltracer
 
     def __iter__(self) -> Iterator[int]:
@@ -72,19 +82,16 @@ class OpcodeLooper:
         frame = frame.f_back
         assert frame
 
-        sys.settrace(self.gtracer)      # enable tracing globally
         frame.f_trace = self.ltracer    # trace the benchmarking function
         frame.f_trace_opcodes = True    # enable opcode tracing
         self.active = True
 
-        assert self.opcodes == 0
-        assert self.lines == 0
-        for i in range(self.loops):
-            yield i
+        with tracer_context(self.gtracer):
+            for i in range(self.loops):
+                yield i
 
         frame.f_trace = None
         frame.f_trace_opcodes = False
-        self.active = False
 
 
 @dataclass
@@ -92,11 +99,12 @@ class MemoryLooper:
     loops: int
     snapshots: list[int]
     period: int
-    active: bool = False
     lines: int = 0
 
     def ltracer(self, frame, event: str, arg):
-        if self.active and event == 'line' and frame.f_code.co_filename != __file__:
+        """Local tracer attached to each function.
+        """
+        if event == 'line' and frame.f_code.co_filename != __file__:
             self.lines += 1
             if self.lines % self.period == 0:
                 snapshot = tracemalloc.take_snapshot()
@@ -106,8 +114,9 @@ class MemoryLooper:
                 self.snapshots.append(total)
 
     def gtracer(self, frame, event: str, arg):
-        pass
-        if self.active and event == 'call':
+        """Global tracer executed for all functions.
+        """
+        if event == 'call':
             return self.ltracer
 
     def __iter__(self) -> Iterator[int]:
@@ -116,13 +125,9 @@ class MemoryLooper:
         frame = frame.f_back
         assert frame
 
-        sys.settrace(self.gtracer)      # enable tracing globally
-        frame.f_trace = self.ltracer    # trace the benchmarking function
         tracemalloc.start()
-        self.active = True
         self.snapshots = []
-        for i in range(self.loops):
-            yield i
-        self.active = False
-        frame.f_trace = None
+        with tracer_context(self.gtracer):
+            for i in range(self.loops):
+                yield i
         tracemalloc.stop()
