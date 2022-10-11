@@ -35,20 +35,20 @@ class Check:
         base_time: float | None = None,
     ) -> TimingResult:
         print(f'  {colors.magenta(self.name)}', file=stream)
-        tresult = self.run()
+        tresult = self.check_timing()
         warning = tresult.format_warning(colors=colors)
         if warning:
             print(warning, file=stream)
         print(tresult.format(colors=colors, base_time=base_time), file=stream)
         if allocations or opcodes:
-            oresult = self._count_opcodes(best=tresult.best)
+            oresult = self.check_opcodes(best=tresult.best)
             print(oresult.format(), file=stream)
         if allocations:
-            mresult = self._count_mallocs(lines=oresult.lines)
+            mresult = self.check_mallocs(lines=oresult.lines)
             print(mresult.format(), file=stream)
         return tresult
 
-    def run(self) -> TimingResult:
+    def check_timing(self) -> TimingResult:
         """Run benchmarks for the check.
         """
         # to detect caching, we should individually record
@@ -65,27 +65,14 @@ class Check:
             each_timings.extend(self._run_each_loop(loops - 2))
 
         for _ in range(repeats):
-            total_timings.append(self.run_once(loops))
+            total_timings.append(self._run_total_loop(loops))
         assert len(total_timings) == self.repeats
         return TimingResult(
-            name=self.name,
             total_timings=[dt / loops for dt in total_timings],
             each_timings=each_timings,
-            loops=loops,
         )
 
-    def run_once(self, loops: int = 1) -> float:
-        looper = TotalLooper(loops=loops, timer=self.timer)
-        self._run(looper)
-        return looper.stop - looper.start
-
-    def _run_each_loop(self, loops: int) -> list[float]:
-        looper = EachLooper(loops=loops, timer=self.timer, timings=[])
-        self._run(looper)
-        assert len(looper.timings) == loops
-        return looper.timings
-
-    def _count_opcodes(self, loops: int = 1, best: float = 0) -> OpcodesResult:
+    def check_opcodes(self, loops: int = 1, best: float = 0) -> OpcodesResult:
         """Run the benchmark and count executed opcodes.
         """
         looper = OpcodeLooper(loops=loops)
@@ -96,14 +83,27 @@ class Check:
             best=best,
         )
 
-    def _count_mallocs(self, lines: int) -> MallocResult:
+    def check_mallocs(self, lines: int, loops: int = 1) -> MallocResult:
         period = max(1, round(lines / 500))
-        looper = MemoryLooper(period=period)
+        looper = MemoryLooper(period=period, loops=loops)
         self.func(looper)
         return MallocResult(
-            totals=looper.snapshots,
+            totals=looper.totals,
             allocs=looper.allocs,
         )
+
+    # Private methods
+
+    def _run_total_loop(self, loops: int = 1) -> float:
+        looper = TotalLooper(loops=loops, timer=self.timer)
+        self._run(looper)
+        return looper.stop - looper.start
+
+    def _run_each_loop(self, loops: int) -> list[float]:
+        looper = EachLooper(loops=loops, timer=self.timer, timings=[])
+        self._run(looper)
+        assert len(looper.timings) == loops
+        return looper.timings
 
     def _run(self, looper: Iterable[int]) -> None:
         gc_was_enabled = gc.isenabled()
@@ -125,7 +125,7 @@ class Check:
         while True:
             for j in 1, 2, 5:
                 number = i * j
-                time_taken = self.run_once(number)
+                time_taken = self._run_total_loop(number)
                 if time_taken >= self.min_time:
                     return number, time_taken
             i *= 10

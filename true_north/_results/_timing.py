@@ -8,12 +8,12 @@ from .._colors import DEFAULT_COLORS, Colors
 from ._formatters import make_histogram, format_time, format_amount
 
 
-@dataclass
+@dataclass(frozen=True)
 class TimingResult:
-    name: str
-    total_timings: list[float]
-    each_timings: list[float]
-    loops: int
+    """The result of benchmarking a code execution time.
+    """
+    total_timings: list[float]  # mean time per loop for each repeat
+    each_timings: list[float]   # execution time of each loop in a single repeat
 
     @property
     def best(self) -> float:
@@ -46,12 +46,12 @@ class TimingResult:
     ) -> str:
         """Represent the timing result as a human-friendly text.
         """
-        result = '    {loops:4} loops, best of {repeat}: {best}'.format(
-            loops=format_amount(self.loops),
+        result = '    {loops:4} loops, best of {repeat}: {best} ± {stdev}'.format(
+            loops=format_amount(len(self.each_timings)),
             repeat=len(self.total_timings),
             best=format_time(self.best, colors=colors),
+            stdev=format_time(self.stdev, colors=colors),
         )
-        result += f' ± {format_time(self.stdev, colors=colors)}'
         if base_time is not None:
             good = self.best < base_time
             if good:

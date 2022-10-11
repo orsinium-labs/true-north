@@ -100,7 +100,7 @@ class MemoryLooper:
     period: int
     loops: int = 1
     lines: int = 0
-    snapshots: list[int] = field(default_factory=list)
+    totals: list[int] = field(default_factory=list)
     allocs: list[Counter[str]] = field(default_factory=list)
     _prev_allocs: Counter[str] = field(default_factory=Counter)
 
@@ -117,7 +117,7 @@ class MemoryLooper:
                     total += trace.size
                     file_name = trace.traceback[-1].filename
                     allocs[file_name] += 1
-                self.snapshots.append(total)
+                self.totals.append(total)
                 diff = allocs - self._prev_allocs
                 self.allocs.append(diff)
                 self._prev_allocs = allocs
@@ -130,7 +130,7 @@ class MemoryLooper:
 
     def __iter__(self) -> Iterator[int]:
         tracemalloc.start()
-        self.snapshots = []
+        self.totals = []
         with tracer_context(self.gtracer):
             for i in range(self.loops):
                 yield i

@@ -25,10 +25,8 @@ from true_north._results._formatters import format_time
 ])
 def test_hisogram(timings, hist):
     r = TimingResult(
-        name='',
         total_timings=timings,
         each_timings=[],
-        loops=1,
     )
     assert r.histogram == hist
 
@@ -45,20 +43,16 @@ def test_hisogram(timings, hist):
 ])
 def test_stdev(timings, stdev):
     r = TimingResult(
-        name='',
         total_timings=[1, 2, 3],
         each_timings=timings,
-        loops=1,
     )
     assert math.isclose(r.stdev, stdev)
 
 
 def test_get_text():
     r = TimingResult(
-        name='',
         total_timings=[1, 2, 3],
         each_timings=[4, 5, 6, 7],
-        loops=4,
     )
     actual = r.format(colors=Colors(disabled=True))
     exp = '    4    loops, best of 3:   1.000 s  ±   1.118 s                  ▃▆█'
