@@ -13,7 +13,6 @@ SCALES = (
     (1e-9, 'ns'),
 )
 TICKS = '▁▂▃▄▅▆▇█'
-CHUNKS = len(TICKS) - 1
 
 
 def chunks(items: list, count: int) -> Iterator[list]:
@@ -50,14 +49,22 @@ def format_size(size: float, rjust: int) -> str:
     raise RuntimeError
 
 
-def make_histogram(items: Sequence[float]):
+def make_histogram(items: Sequence[float], lines: int = 2):
     worst = max(items, default=0)
     if worst == 0:
         return TICKS[-1] * len(items)
 
-    histogram = []
+    histogram = ['' for _ in range(lines)]
+    chunks = len(TICKS) * lines - 1
     for item in items:
         ratio = item / worst
-        index = int(round(ratio * CHUNKS))
-        histogram.append(TICKS[index])
-    return ''.join(histogram)
+        index = int(round(ratio * chunks))
+        whole_parts = index // len(TICKS)
+        for i in range(whole_parts):
+            histogram[i] += TICKS[-1]
+        index = index % len(TICKS)
+        histogram[whole_parts] += TICKS[index]
+        for i in range(whole_parts + 1, lines):
+            histogram[i] += ' '
+    histogram.reverse()
+    return '\n    '.join(histogram)

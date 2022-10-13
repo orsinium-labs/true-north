@@ -28,8 +28,8 @@ class OpcodesResult(BaseResult):
             lines=colors.cyan(self.lines, rjust=12, group=True),
         )
 
-    def format_histogram(self, limit: int = 64) -> str:
+    def format_histogram(self, limit: int = 64, lines: int = 2) -> str:
         bars = []
         for chunk in chunks(self.timings, limit):
             bars.append(math.fsum(chunk) / len(chunk))
-        return colors.cyan(make_histogram(bars))
+        return colors.cyan(make_histogram(bars, lines=lines))

@@ -32,8 +32,8 @@ class MallocResult(BaseResult):
             samples=colors.magenta(len(self.totals), rjust=9),
         )
 
-    def format_histogram(self, limit: int = 64) -> str:
+    def format_histogram(self, limit: int = 64, lines: int = 2) -> str:
         bars = []
         for chunk in chunks(self.totals, limit):
             bars.append(math.fsum(chunk) / len(chunk))
-        return colors.magenta(make_histogram(bars))
+        return colors.magenta(make_histogram(bars, lines=lines))

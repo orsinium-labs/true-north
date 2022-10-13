@@ -34,11 +34,11 @@ class TimingResult(BaseResult):
         mean = math.fsum(ts) / len(ts)
         return (math.fsum((t - mean) ** 2 for t in ts) / len(ts)) ** 0.5
 
-    def format_histogram(self, limit: int = 64) -> str:
+    def format_histogram(self, limit: int = 64, lines: int = 2) -> str:
         """Histogram of timings (repeats).
         """
         assert len(self.total_timings) <= limit
-        return make_histogram(self.total_timings)
+        return make_histogram(self.total_timings, lines=lines)
 
     def format_text(
         self,

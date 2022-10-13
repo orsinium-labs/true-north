@@ -24,5 +24,5 @@ class BaseResult:
     def format_warnings(self) -> list[str]:
         return []
 
-    def format_histogram(self, limit: int = 64) -> str:
+    def format_histogram(self, limit: int = 64, lines: int = 2) -> str:
         raise NotImplementedError
