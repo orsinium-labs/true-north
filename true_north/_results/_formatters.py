@@ -1,6 +1,6 @@
 from __future__ import annotations
-import math
 
+import math
 from typing import Iterator, Sequence
 
 from .._colors import colors

@@ -27,7 +27,7 @@ def test_hisogram(timings, hist):
         total_timings=timings,
         each_timings=[],
     )
-    assert r.histogram == hist
+    assert r.format_histogram() == hist
 
 
 @pytest.mark.parametrize('timings, stdev', [
@@ -53,8 +53,8 @@ def test_get_text():
         total_timings=[1, 2, 3],
         each_timings=[4, 5, 6, 7],
     )
-    actual = r.format()
-    exp = '    4    loops, best of 3:   1.000 s  ±   1.118 s                  ▃▆█'
+    actual = r.format_text()
+    exp = '4    loops, best of 3:   1.000 s  ±   1.118 s '
     assert actual == exp
 
 
