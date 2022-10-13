@@ -38,6 +38,7 @@ class Check:
     ) -> TimingResult:
         print(f'  {colors.magenta(self.name)}', file=stream)
         tresult = self.check_timing()
+        tresult.base_time = base_time
         tresult.print(stream=stream, histogram=histograms)
         if allocations or opcodes:
             oresult = self.check_opcodes(best=tresult.best)

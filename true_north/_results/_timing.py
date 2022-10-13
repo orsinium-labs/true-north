@@ -9,12 +9,13 @@ from ._base import BaseResult
 from ._formatters import format_amount, format_time, make_histogram
 
 
-@dataclass(frozen=True)
+@dataclass
 class TimingResult(BaseResult):
     """The result of benchmarking a code execution time.
     """
     total_timings: list[float]  # mean time per loop for each repeat
     each_timings: list[float]   # execution time of each loop in a single repeat
+    base_time: float | None = None
 
     @property
     def best(self) -> float:
@@ -40,10 +41,7 @@ class TimingResult(BaseResult):
         assert len(self.total_timings) <= limit
         return make_histogram(self.total_timings, lines=lines)
 
-    def format_text(
-        self,
-        base_time: float | None = None,
-    ) -> str:
+    def format_text(self) -> str:
         """Represent the timing result as a human-friendly text.
         """
         result = '{loops:4} loops, best of {repeat}: {best} ± {stdev}'.format(
@@ -52,14 +50,14 @@ class TimingResult(BaseResult):
             best=format_time(self.best),
             stdev=format_time(self.stdev),
         )
-        if base_time is not None:
-            good = self.best < base_time
+        if self.base_time is not None:
+            good = self.best < self.base_time
             if good:
-                ratio = round(base_time / self.best, 2)
+                ratio = round(self.base_time / self.best, 2)
                 ratio_text = f'/{ratio:.02f}'
                 result += f' {colors.green(ratio_text, rjust=8)} faster'
             else:
-                ratio = round(self.best / base_time, 2)
+                ratio = round(self.best / self.base_time, 2)
                 ratio_text = f'x{ratio:.02f}'
                 result += f' {colors.red(ratio_text, rjust=8)} slower'
         return result
