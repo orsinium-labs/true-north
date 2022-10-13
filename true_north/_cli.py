@@ -6,7 +6,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 from typing import Iterator, NoReturn, TextIO
 
-from ._colors import DEFAULT_COLORS, Colors
+from ._colors import disable_colors
 from ._group import Group
 
 
@@ -39,9 +39,7 @@ def run_all_groups(path: Path, args: argparse.Namespace, stdout: TextIO) -> None
     code = compile(content, filename=str(path), mode='exec')
     exec(code, globals)
     if args.no_color:
-        colors = Colors(disabled=True)
-    else:
-        colors = DEFAULT_COLORS
+        disable_colors()
     for group in globals.values():
         if not isinstance(group, Group):
             continue
@@ -51,7 +49,6 @@ def run_all_groups(path: Path, args: argparse.Namespace, stdout: TextIO) -> None
             stream=stdout,
             opcodes=args.opcodes,
             allocations=args.allocations,
-            colors=colors,
         )
 
 

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from .._colors import DEFAULT_COLORS, Colors
+from .._colors import colors
 
 
 @dataclass(frozen=True)
@@ -15,7 +15,7 @@ class OpcodesResult:
     lines: int      # number of lines executed (see lnotab_notes.txt in CPython)
     best: float     # the best execution time, used to calculate ns/op.
 
-    def format(self, colors: Colors = DEFAULT_COLORS) -> str:
+    def format(self) -> str:
         """Generate a human-friendly representation of opcodes.
         """
         return '    {opcodes} ops {ns_op} ns/op {lines} lines'.format(

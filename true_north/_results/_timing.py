@@ -4,7 +4,7 @@ import math
 from dataclasses import dataclass
 from functools import cached_property
 
-from .._colors import DEFAULT_COLORS, Colors
+from .._colors import colors
 from ._formatters import format_amount, format_time, make_histogram
 
 
@@ -41,7 +41,6 @@ class TimingResult:
 
     def format(
         self,
-        colors: Colors = DEFAULT_COLORS,
         base_time: float | None = None,
     ) -> str:
         """Represent the timing result as a human-friendly text.
@@ -49,8 +48,8 @@ class TimingResult:
         result = '    {loops:4} loops, best of {repeat}: {best} ± {stdev}'.format(
             loops=format_amount(len(self.each_timings)),
             repeat=len(self.total_timings),
-            best=format_time(self.best, colors=colors),
-            stdev=format_time(self.stdev, colors=colors),
+            best=format_time(self.best),
+            stdev=format_time(self.stdev),
         )
         if base_time is not None:
             good = self.best < base_time
@@ -67,7 +66,7 @@ class TimingResult:
         result += f' {self.histogram}'
         return result
 
-    def format_warning(self, colors: Colors = DEFAULT_COLORS) -> str:
+    def format_warning(self) -> str:
         first = self.each_timings[0]
         second = self.each_timings[1]
         if second != 0 and first > 1e-6:

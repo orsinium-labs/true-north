@@ -5,7 +5,7 @@ import sys
 from dataclasses import dataclass
 from typing import Callable, Iterable, TextIO
 
-from ._colors import DEFAULT_COLORS, Colors
+from ._colors import colors
 from ._loopers import (
     EachLooper, MemoryLooper, OpcodeLooper, Timer, TotalLooper,
 )
@@ -31,17 +31,16 @@ class Check:
     def print(
         self,
         stream: TextIO = sys.stdout,
-        colors: Colors = DEFAULT_COLORS,
         opcodes: bool = False,
         allocations: bool = False,
         base_time: float | None = None,
     ) -> TimingResult:
         print(f'  {colors.magenta(self.name)}', file=stream)
         tresult = self.check_timing()
-        warning = tresult.format_warning(colors=colors)
+        warning = tresult.format_warning()
         if warning:
             print(warning, file=stream)
-        print(tresult.format(colors=colors, base_time=base_time), file=stream)
+        print(tresult.format(base_time=base_time), file=stream)
         if allocations or opcodes:
             oresult = self.check_opcodes(best=tresult.best)
             print(oresult.format(), file=stream)

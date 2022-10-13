@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Sequence
 
-from .._colors import Colors
+from .._colors import colors
 
 
 SCALES = (
@@ -15,7 +15,7 @@ TICKS = '▁▂▃▄▅▆▇█'
 CHUNKS = len(TICKS) - 1
 
 
-def format_time(dt: float, colors: Colors) -> str:
+def format_time(dt: float) -> str:
     for scale, unit in SCALES:
         if dt >= scale:
             break
@@ -30,7 +30,7 @@ def format_amount(number: float, k: int = 0) -> str:
     return format_amount(number / 1000, k + 1)
 
 
-def format_size(size: float, colors: Colors, rjust: int) -> str:
+def format_size(size: float, rjust: int) -> str:
     for unit in ('B  ', 'KiB', 'MiB', 'GiB', 'TiB'):
         if abs(size) < 100 and unit != 'B':
             size_text = colors.magenta(size, rjust=rjust, precision=1)

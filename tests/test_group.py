@@ -1,6 +1,6 @@
 from io import StringIO
 
-from true_north import Colors, Group
+from true_north import Group
 
 
 def test_smoke():
@@ -14,8 +14,7 @@ def test_smoke():
         assert len(list(r)) == 2
 
     stream = StringIO()
-    colors = Colors(disabled=True)
-    g.print(stream=stream, colors=colors)
+    g.print(stream=stream)
     assert called == 4
     stream.seek(0)
     output = stream.read()

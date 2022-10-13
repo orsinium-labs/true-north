@@ -2,7 +2,6 @@ import math
 
 import pytest
 
-from true_north import Colors
 from true_north._results import TimingResult
 from true_north._results._formatters import format_time
 
@@ -54,7 +53,7 @@ def test_get_text():
         total_timings=[1, 2, 3],
         each_timings=[4, 5, 6, 7],
     )
-    actual = r.format(colors=Colors(disabled=True))
+    actual = r.format()
     exp = '    4    loops, best of 3:   1.000 s  ±   1.118 s                  ▃▆█'
     assert actual == exp
 
@@ -68,5 +67,4 @@ def test_get_text():
     (1e-9,  '  1.000 ns'),
 ])
 def test_format_time(given, expected):
-    colors = Colors(disabled=True)
-    assert format_time(given, colors) == expected
+    assert format_time(given) == expected

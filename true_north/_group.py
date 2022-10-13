@@ -7,7 +7,7 @@ from time import perf_counter
 from typing import Callable, TextIO
 
 from ._check import Check, Func
-from ._colors import DEFAULT_COLORS, Colors
+from ._colors import colors
 from ._loopers import Timer
 
 
@@ -81,7 +81,6 @@ class Group:
     def print(
         self,
         stream: TextIO = sys.stdout,
-        colors: Colors = DEFAULT_COLORS,
         opcodes: bool = False,
         allocations: bool = False,
     ) -> None:
@@ -98,7 +97,6 @@ class Group:
         for check in self._checks:
             result = check.print(
                 stream=stream,
-                colors=colors,
                 opcodes=opcodes,
                 base_time=base_time,
                 allocations=allocations,

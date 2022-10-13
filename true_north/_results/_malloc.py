@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from functools import cached_property
 from typing import Iterator, Sequence
 
-from .._colors import DEFAULT_COLORS, Colors
+from .._colors import colors
 from ._formatters import format_size, make_histogram
 
 
@@ -32,7 +32,7 @@ class MallocResult:
         """
         return sum(sum(alloc.values()) for alloc in self.allocs)
 
-    def format(self, colors: Colors = DEFAULT_COLORS) -> str:
+    def format(self) -> str:
         """Generate a human-friendly representation of memory allocations.
         """
         bars: Sequence[float]
@@ -45,7 +45,7 @@ class MallocResult:
                 bars.append(mean)
         return '    {allocs} allocs {used} used {samples} samples  {hist}'.format(
             allocs=colors.magenta(self.total_allocs, group=True, rjust=12),
-            used=format_size(max(self.totals), colors=colors, rjust=5),
+            used=format_size(max(self.totals), rjust=5),
             samples=colors.magenta(len(self.totals), rjust=9),
             hist=colors.magenta(make_histogram(bars)),
         )
