@@ -29,7 +29,10 @@ class OpcodesResult(BaseResult):
         )
 
     def format_histogram(self, limit: int = 64, lines: int = 2) -> str:
+        diffs = []
+        for left, right in zip(self.timings, self.timings[1:]):
+            diffs.append(right - left)
         bars = []
-        for chunk in chunks(self.timings, limit):
+        for chunk in chunks(diffs, limit):
             bars.append(math.fsum(chunk) / len(chunk))
         return colors.cyan(make_histogram(bars, lines=lines))
