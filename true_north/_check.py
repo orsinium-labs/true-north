@@ -37,16 +37,13 @@ class Check:
     ) -> TimingResult:
         print(f'  {colors.magenta(self.name)}', file=stream)
         tresult = self.check_timing()
-        warning = tresult.format_warning()
-        if warning:
-            print(warning, file=stream)
-        print(tresult.format(base_time=base_time), file=stream)
+        tresult.print(stream=stream)
         if allocations or opcodes:
             oresult = self.check_opcodes(best=tresult.best)
-            print(oresult.format(), file=stream)
+            oresult.print(stream=stream)
         if allocations:
             mresult = self.check_mallocs(lines=oresult.lines)
-            print(mresult.format(), file=stream)
+            mresult.print(stream=stream)
         return tresult
 
     def check_timing(self) -> TimingResult:

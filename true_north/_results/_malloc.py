@@ -4,17 +4,14 @@ import math
 from collections import Counter
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Sequence
 
 from .._colors import colors
+from ._base import BaseResult
 from ._formatters import chunks, format_size, make_histogram
 
 
-CHUNKS = 14
-
-
 @dataclass(frozen=True)
-class MallocResult:
+class MallocResult(BaseResult):
     """The result of benchmarking memory allocations of a code.
     """
     totals: list[int]           # memory used on each sample
@@ -26,20 +23,17 @@ class MallocResult:
         """
         return sum(sum(alloc.values()) for alloc in self.allocs)
 
-    def format(self) -> str:
+    def format_text(self) -> str:
         """Generate a human-friendly representation of memory allocations.
         """
-        bars: Sequence[float]
-        if len(self.totals) < CHUNKS:
-            bars = self.totals
-        else:
-            bars = []
-            for chunk in chunks(self.totals, CHUNKS):
-                mean = math.fsum(chunk) / len(chunk)
-                bars.append(mean)
-        return '    {allocs} allocs {used} used {samples} samples  {hist}'.format(
+        return '    {allocs} allocs {used} used {samples} samples'.format(
             allocs=colors.magenta(self.total_allocs, group=True, rjust=12),
             used=format_size(max(self.totals), rjust=5),
             samples=colors.magenta(len(self.totals), rjust=9),
-            hist=colors.magenta(make_histogram(bars)),
         )
+
+    def format_histogram(self, limit: int = 64) -> str:
+        bars = []
+        for chunk in chunks(self.totals, limit):
+            bars.append(math.fsum(chunk) / len(chunk))
+        return colors.magenta(make_histogram(bars))
