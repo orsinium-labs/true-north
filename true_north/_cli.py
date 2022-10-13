@@ -49,6 +49,7 @@ def run_all_groups(path: Path, args: argparse.Namespace, stdout: TextIO) -> None
             stream=stdout,
             opcodes=args.opcodes,
             allocations=args.allocations,
+            histograms=args.histograms,
         )
 
 
@@ -70,6 +71,10 @@ def main(argv: list[str], stdout: TextIO) -> int:
     parser.add_argument(
         '--pdb', action='store_true',
         help='Run PDB on failure.'
+    )
+    parser.add_argument(
+        '--histograms', action='store_true',
+        help='Show histograms.'
     )
     parser.add_argument(
         '--group', dest='groups', nargs='*',

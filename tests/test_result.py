@@ -22,12 +22,12 @@ from true_north._results._formatters import format_time
     ([1, 2, 3],     '▃▆█'),
     ([0, 3],        '▁█'),
 ])
-def test_hisogram(timings, hist):
+def test_histogram(timings, hist):
     r = TimingResult(
         total_timings=timings,
         each_timings=[],
     )
-    assert r.format_histogram() == hist
+    assert r.format_histogram(lines=1) == hist
 
 
 @pytest.mark.parametrize('timings, stdev', [

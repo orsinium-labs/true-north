@@ -34,16 +34,17 @@ class Check:
         opcodes: bool = False,
         allocations: bool = False,
         base_time: float | None = None,
+        histograms: bool = False,
     ) -> TimingResult:
         print(f'  {colors.magenta(self.name)}', file=stream)
         tresult = self.check_timing()
-        tresult.print(stream=stream)
+        tresult.print(stream=stream, histogram=histograms)
         if allocations or opcodes:
             oresult = self.check_opcodes(best=tresult.best)
-            oresult.print(stream=stream)
+            oresult.print(stream=stream, histogram=histograms)
         if allocations:
             mresult = self.check_mallocs(lines=oresult.lines)
-            mresult.print(stream=stream)
+            mresult.print(stream=stream, histogram=histograms)
         return tresult
 
     def check_timing(self) -> TimingResult:

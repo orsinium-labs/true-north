@@ -7,14 +7,20 @@ from ._formatters import TICKS
 
 
 class BaseResult:
-    def print(self, stream: TextIO = sys.stdout, indent: int = 4) -> None:
+    def print(
+        self,
+        stream: TextIO = sys.stdout,
+        indent: int = 4,
+        histogram: bool = False,
+    ) -> None:
         prefix = ' ' * indent
         for warning in self.format_warnings():
             print(prefix + warning, file=stream)
         print(prefix + self.format_text(), file=stream)
-        histogram = self.format_histogram()
-        if len(set(histogram) & set(TICKS)) > 1:
-            print(prefix + histogram, file=stream)
+        if histogram:
+            hist = self.format_histogram()
+            if len(set(hist) & set(TICKS)) > 1:
+                print(prefix + hist, file=stream)
 
     def format_text(self) -> str:
         """Represent the result as a human-friendly text.
