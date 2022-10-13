@@ -81,6 +81,7 @@ class Check:
         return OpcodesResult(
             opcodes=looper.opcodes,
             lines=looper.lines,
+            timings=looper.timings,
             best=best,
         )
 

@@ -4,19 +4,13 @@ import math
 from collections import Counter
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Iterator, Sequence
+from typing import Sequence
 
 from .._colors import colors
-from ._formatters import format_size, make_histogram
+from ._formatters import chunks, format_size, make_histogram
 
 
 CHUNKS = 14
-
-
-def chunks(items: list[int], count: int) -> Iterator[list[int]]:
-    size = math.ceil(len(items) / count)
-    for i in range(0, len(items), size):
-        yield items[i:i + size]
 
 
 @dataclass(frozen=True)

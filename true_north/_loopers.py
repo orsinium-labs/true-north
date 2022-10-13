@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import inspect
 import sys
+import time
 import tracemalloc
 from collections import Counter
 from contextlib import contextmanager
@@ -61,6 +62,7 @@ class OpcodeLooper:
     loops: int
     opcodes: int = 0
     lines: int = 0
+    timings: list[float] = field(default_factory=list)
 
     def ltracer(self, frame: FrameType, event: str, arg):
         if event == 'return':
@@ -70,6 +72,7 @@ class OpcodeLooper:
             frame.f_trace_opcodes = True
             if event == 'opcode':
                 self.opcodes += 1
+                self.timings.append(time.perf_counter())
             elif event == 'line':
                 self.lines += 1
 

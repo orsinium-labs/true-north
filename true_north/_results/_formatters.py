@@ -1,6 +1,7 @@
 from __future__ import annotations
+import math
 
-from typing import Sequence
+from typing import Iterator, Sequence
 
 from .._colors import colors
 
@@ -13,6 +14,12 @@ SCALES = (
 )
 TICKS = '▁▂▃▄▅▆▇█'
 CHUNKS = len(TICKS) - 1
+
+
+def chunks(items: list, count: int) -> Iterator[list]:
+    size = math.ceil(len(items) / count)
+    for i in range(0, len(items), size):
+        yield items[i:i + size]
 
 
 def format_time(dt: float) -> str:
