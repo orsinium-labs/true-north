@@ -11,14 +11,16 @@ class BaseResult:
         self,
         stream: TextIO = sys.stdout,
         indent: int = 4,
-        histogram: bool = False,
+        histogram_lines: int | None = None,
     ) -> None:
+        if histogram_lines is None:
+            histogram_lines = 2
         prefix = ' ' * indent
         for warning in self.format_warnings():
             print(prefix + warning, file=stream)
         print(prefix + self.format_text(), file=stream)
-        if histogram:
-            hist = self.format_histogram()
+        if histogram_lines is not None:
+            hist = self.format_histogram(lines=histogram_lines)
             if len(set(hist) & set(TICKS)) > 1:
                 print(prefix + hist, file=stream)
 

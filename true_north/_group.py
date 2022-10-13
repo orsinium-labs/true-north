@@ -83,7 +83,7 @@ class Group:
         stream: TextIO = sys.stdout,
         opcodes: bool = False,
         allocations: bool = False,
-        histograms: bool = False,
+        histogram_lines: int | None = None,
     ) -> None:
         """Run all benchmarks in the group and print their results.
 
@@ -101,7 +101,7 @@ class Group:
                 opcodes=opcodes,
                 base_time=base_time,
                 allocations=allocations,
-                histograms=histograms,
+                histogram_lines=histogram_lines,
             )
             if base_time is None:
                 base_time = result.best

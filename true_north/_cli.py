@@ -45,11 +45,13 @@ def run_all_groups(path: Path, args: argparse.Namespace, stdout: TextIO) -> None
             continue
         if args.groups and group.name not in args.groups:
             continue
+        if args.histograms:
+            args.histogram_lines = 2
         group.print(
             stream=stdout,
             opcodes=args.opcodes,
             allocations=args.allocations,
-            histograms=args.histograms,
+            histogram_lines=args.histogram_lines,
         )
 
 
@@ -75,6 +77,10 @@ def main(argv: list[str], stdout: TextIO) -> int:
     parser.add_argument(
         '--histograms', action='store_true',
         help='Show histograms.'
+    )
+    parser.add_argument(
+        '--histogram-lines', type=int, default=2,
+        help='How many lines each histogram should take.'
     )
     parser.add_argument(
         '--group', dest='groups', nargs='*',
