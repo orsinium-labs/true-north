@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import gc
-import sys
 from dataclasses import dataclass
-from typing import Callable, Iterable, TextIO
+from typing import Callable, Iterable
 
 from ._colors import colors
+from ._config import DEFAULT_CONFIG, Config
 from ._loopers import (
     EachLooper, MemoryLooper, OpcodeLooper, Timer, TotalLooper,
 )
@@ -30,24 +30,21 @@ class Check:
 
     def print(
         self,
-        stream: TextIO = sys.stdout,
-        opcodes: bool = False,
-        allocations: bool = False,
+        config: Config = DEFAULT_CONFIG,
         base_time: float | None = None,
-        histogram_lines: int | None = None,
     ) -> TimingResult:
         print_args: dict = dict(
-            stream=stream,
-            histogram_lines=histogram_lines,
+            stream=config.stream,
+            histogram_lines=config.histogram_lines,
         )
-        print(f'  {colors.magenta(self.name)}', file=stream)
+        print(f'  {colors.magenta(self.name)}', file=config.stream)
         tresult = self.check_timing()
         tresult.base_time = base_time
         tresult.print(**print_args)
-        if allocations or opcodes:
+        if config.allocations or config.opcodes:
             oresult = self.check_opcodes(best=tresult.best)
             oresult.print(**print_args)
-        if allocations:
+        if config.allocations:
             mresult = self.check_mallocs(lines=oresult.lines)
             mresult.print(**print_args)
         return tresult

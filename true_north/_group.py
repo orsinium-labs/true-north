@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import inspect
 import os
-import sys
 from time import perf_counter
-from typing import Callable, TextIO
+from typing import Callable
 
+from ._config import DEFAULT_CONFIG, Config
 from ._check import Check, Func
 from ._colors import colors
 from ._loopers import Timer
@@ -78,13 +78,7 @@ class Group:
             return wrapper(func)  # type: ignore[return-value]
         return wrapper
 
-    def print(
-        self,
-        stream: TextIO = sys.stdout,
-        opcodes: bool = False,
-        allocations: bool = False,
-        histogram_lines: int | None = None,
-    ) -> None:
+    def print(self, config: Config = DEFAULT_CONFIG) -> None:
         """Run all benchmarks in the group and print their results.
 
         Args:
@@ -94,14 +88,8 @@ class Group:
             allocations: track memory allocations. Slow but interesting.
         """
         base_time: float | None = None
-        print(colors.blue(self.name), file=stream)
+        print(colors.blue(self.name), file=config.stream)
         for check in self._checks:
-            result = check.print(
-                stream=stream,
-                opcodes=opcodes,
-                base_time=base_time,
-                allocations=allocations,
-                histogram_lines=histogram_lines,
-            )
+            result = check.print(config=config, base_time=base_time)
             if base_time is None:
                 base_time = result.best

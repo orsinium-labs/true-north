@@ -6,6 +6,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 from typing import Iterator, NoReturn, TextIO
 
+from ._config import Config
 from ._colors import disable_colors
 from ._group import Group
 
@@ -45,14 +46,13 @@ def run_all_groups(path: Path, args: argparse.Namespace, stdout: TextIO) -> None
             continue
         if args.groups and group.name not in args.groups:
             continue
-        if args.histograms:
-            args.histogram_lines = 2
-        group.print(
+        config = Config(
             stream=stdout,
             opcodes=args.opcodes,
             allocations=args.allocations,
             histogram_lines=args.histogram_lines,
         )
+        group.print(config=config)
 
 
 def main(argv: list[str], stdout: TextIO) -> int:
@@ -75,11 +75,7 @@ def main(argv: list[str], stdout: TextIO) -> int:
         help='Run PDB on failure.'
     )
     parser.add_argument(
-        '--histograms', action='store_true',
-        help='Show histograms.'
-    )
-    parser.add_argument(
-        '--histogram-lines', type=int, default=2,
+        '--histogram-lines', type=int,
         help='How many lines each histogram should take.'
     )
     parser.add_argument(

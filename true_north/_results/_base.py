@@ -13,8 +13,6 @@ class BaseResult:
         indent: int = 4,
         histogram_lines: int | None = None,
     ) -> None:
-        if histogram_lines is None:
-            histogram_lines = 2
         prefix = ' ' * indent
         for warning in self.format_warnings():
             print(prefix + warning, file=stream)
