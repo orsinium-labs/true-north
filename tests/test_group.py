@@ -1,6 +1,6 @@
 from io import StringIO
 
-from true_north import Group, Config
+from true_north import Config, Group
 
 
 def test_smoke():
