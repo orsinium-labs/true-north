@@ -10,4 +10,5 @@ Beautiful, powerful, and pythonic benchmarks engine for Python code. See [github
     timing
     opcodes
     mallocs
+    api
 ```

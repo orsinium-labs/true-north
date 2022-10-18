@@ -52,12 +52,13 @@ class Group:
             name: if not specified, the function name will be used.
             loops: how many times to run the benchmark in each repeat.
                 If not specified, will be automatically detected
-                to make each repet last at least min_time seconds.
+                to make each repeat last at least min_time seconds.
             repeats: how many times repeat the benchmark (all loops).
                 The results will show only the best repeat
                 to reduce how external factors affect the results.
             min_time: the minimum run time to target if `loops` is not specified.
             timer: function used to get the current time.
+
         """
         def wrapper(func: Func) -> Check:
             check = Check(

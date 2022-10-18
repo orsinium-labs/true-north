@@ -19,13 +19,13 @@ class MallocResult(BaseResult):
         self._allocs = allocs
 
     @property
-    def totals(self):
-        """Total memory used byt the code on each sample.
+    def totals(self) -> list[int]:
+        """Total memory used by the code on each sample.
         """
         return self._totals
 
     @property
-    def allocs(self):
+    def allocs(self) -> list[Counter[str]]:
         """Memory allocations in each file for each sample.
 
         Each item of the list is a Counter for a single sample.

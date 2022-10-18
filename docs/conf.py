@@ -7,5 +7,7 @@ html_theme = 'alabaster'
 # html_static_path = ['_static']
 
 extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
     'myst_parser',
 ]
