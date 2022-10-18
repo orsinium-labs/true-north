@@ -4,6 +4,7 @@ import tracemalloc
 from collections import Counter
 from dataclasses import dataclass, field
 from typing import Iterator
+
 from ._common import tracer_context
 
 

@@ -5,9 +5,9 @@ import os
 from time import perf_counter
 from typing import Callable
 
-from ._config import DEFAULT_CONFIG, Config
 from ._check import Check, Func
 from ._colors import colors
+from ._config import DEFAULT_CONFIG, Config
 from ._loopers import Timer
 
 

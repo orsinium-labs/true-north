@@ -1,6 +1,6 @@
 from io import StringIO
 
-from true_north import Group
+from true_north import Group, Config
 
 
 def test_smoke():
@@ -14,7 +14,7 @@ def test_smoke():
         assert len(list(r)) == 2
 
     stream = StringIO()
-    g.print(stream=stream)
+    g.print(Config(stream=stream, histogram_lines=2))
     assert called == 4
     stream.seek(0)
     output = stream.read()

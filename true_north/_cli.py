@@ -6,8 +6,8 @@ from argparse import ArgumentParser
 from pathlib import Path
 from typing import Iterator, NoReturn, TextIO
 
-from ._config import Config
 from ._colors import disable_colors
+from ._config import Config
 from ._group import Group
 
 

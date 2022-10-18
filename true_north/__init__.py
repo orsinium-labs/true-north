@@ -1,8 +1,8 @@
 """Beautiful and pythonic benchmarks engine.
 """
 from . import types
-from ._config import Config
 from ._colors import disable_colors, enable_colors, reset_colors
+from ._config import Config
 from ._group import Group
 
 
