@@ -7,6 +7,8 @@ from ._formatters import TICKS
 
 
 class BaseResult:
+    __slots__ = ()
+
     def print(
         self,
         stream: TextIO = sys.stdout,

@@ -39,7 +39,7 @@ class Check:
         )
         print(f'  {colors.magenta(self.name)}', file=config.stream)
         tresult = self.check_timing()
-        tresult.base_time = base_time
+        tresult._base_time = base_time
         tresult.print(**print_args)
         if config.allocations or config.opcodes:
             oresult = self.check_opcodes(best=tresult.best)
