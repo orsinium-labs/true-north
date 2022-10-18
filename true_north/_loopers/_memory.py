@@ -23,6 +23,7 @@ class MemoryLooper:
         if event == 'line' and frame.f_code.co_filename != __file__:
             self.lines += 1
             if self.lines % self.period == 0:
+                # gc.collect()
                 snapshot = tracemalloc.take_snapshot()
                 total = 0
                 allocs: Counter[str] = Counter()

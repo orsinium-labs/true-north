@@ -33,6 +33,7 @@ name = "true_north"
 
 [project.optional-dependencies]
 test = ["pytest", "pytest-cov"]
+lint = ["isort", "flake8", "unify", "mypy"]
 
 [project.urls]
 Source = "https://github.com/orsinium-labs/true-north"

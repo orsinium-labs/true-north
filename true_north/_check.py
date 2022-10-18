@@ -86,6 +86,8 @@ class Check:
         )
 
     def check_mallocs(self, lines: int, loops: int = 1) -> MallocResult:
+        """Run the benchmark and trace memory allocations.
+        """
         period = max(1, round(lines / 500))
         looper = MemoryLooper(period=period, loops=loops)
         self.func(looper)

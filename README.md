@@ -71,9 +71,9 @@ Let's take the following benchmark output as an example:
 sorting algorithms
   <...omitted some results...>
   heap_sort
-    1k   loops, best of 5: 240.487 us ±   4.723 us    x5.68 slower █████
+    1k   loops, best of 5: 240.487 us ±   4.723 us    x5.68 slower
           10_031 ops       18 ns/op         2010 lines
-            1438 allocs   139 KiB used       501 samples  ▂▂▂▃▃▄▄▅▅▆▆▇██
+            1438 allocs   139 KiB used       501 samples
 ```
 
 + `sorting algorithms`: the group name.
