@@ -6,13 +6,14 @@ Features:
 
 + Follows best practices of benchmarking to produce the most reliable results.
 + Detects caching and side-effects.
-+ Can trace memory usage and allocations.
-+ Opcodes tracing for reproducble benchmarks.
++ Traces memory usage and allocations (opt-in).
++ Opcodes tracing for reproducble benchmarks (opt-in).
 + 100% type safe.
 + Zero dependency.
 + Highly configurable.
 + Nice and colorful output.
 + Ships with CLI to discover and run all benchmarks.
++ A friendly API to write your own logic on top of benchmarks.
 
 ```text
 sorting algorithms
@@ -54,4 +55,4 @@ if __name__ == '__main__':
     group.print()
 ```
 
-See [examples](./examples/) for more examples.
+See [examples](./examples/) for more examples and [true-north.orsinium.dev](https://true-north.orsinium.dev/) for chad documentation.

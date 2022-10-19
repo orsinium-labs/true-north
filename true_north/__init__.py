@@ -1,4 +1,8 @@
 """Beautiful and pythonic benchmarks engine.
+
+Links:
+    https://github.com/orsinium-labs/true-north
+    https://true-north.orsinium.dev/
 """
 from . import types
 from ._colors import disable_colors, enable_colors, reset_colors
