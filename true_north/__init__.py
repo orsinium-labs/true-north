@@ -10,7 +10,7 @@ from ._config import Config
 from ._group import Group
 
 
-__version__ = '0.2.0'
+__version__ = '0.3.0'
 __all__ = [
     'disable_colors',
     'enable_colors',
