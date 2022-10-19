@@ -2,8 +2,8 @@ import math
 
 import pytest
 
-from true_north import Colors, Result
-from true_north._result import format_time
+from true_north._results import TimingResult
+from true_north._results._formatters import format_time
 
 
 @pytest.mark.parametrize('timings, hist', [
@@ -22,14 +22,12 @@ from true_north._result import format_time
     ([1, 2, 3],     '▃▆█'),
     ([0, 3],        '▁█'),
 ])
-def test_hisogram(timings, hist):
-    r = Result(
-        name='',
+def test_histogram(timings, hist):
+    r = TimingResult(
         total_timings=timings,
         each_timings=[],
-        loops=1,
     )
-    assert r.histogram == hist
+    assert r.format_histogram(lines=1) == hist
 
 
 @pytest.mark.parametrize('timings, stdev', [
@@ -43,24 +41,20 @@ def test_hisogram(timings, hist):
     ([4, 5, 6, 7],  1.118033988749895),
 ])
 def test_stdev(timings, stdev):
-    r = Result(
-        name='',
+    r = TimingResult(
         total_timings=[1, 2, 3],
         each_timings=timings,
-        loops=1,
     )
     assert math.isclose(r.stdev, stdev)
 
 
 def test_get_text():
-    r = Result(
-        name='',
+    r = TimingResult(
         total_timings=[1, 2, 3],
         each_timings=[4, 5, 6, 7],
-        loops=4,
     )
-    actual = r.get_text(colors=Colors(disabled=True))
-    exp = '    4    loops, best of 3:   1.000 s  ±   1.118 s                  ▃▆█'
+    actual = r.format_text()
+    exp = '4    loops, best of 3:   1.000 s  ±   1.118 s '
     assert actual == exp
 
 
@@ -73,5 +67,4 @@ def test_get_text():
     (1e-9,  '  1.000 ns'),
 ])
 def test_format_time(given, expected):
-    colors = Colors(disabled=True)
-    assert format_time(given, colors) == expected
+    assert format_time(given) == expected

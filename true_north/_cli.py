@@ -6,7 +6,8 @@ from argparse import ArgumentParser
 from pathlib import Path
 from typing import Iterator, NoReturn, TextIO
 
-from ._colors import DEFAULT_COLORS, Colors
+from ._colors import disable_colors
+from ._config import Config
 from ._group import Group
 
 
@@ -39,19 +40,19 @@ def run_all_groups(path: Path, args: argparse.Namespace, stdout: TextIO) -> None
     code = compile(content, filename=str(path), mode='exec')
     exec(code, globals)
     if args.no_color:
-        colors = Colors(disabled=True)
-    else:
-        colors = DEFAULT_COLORS
+        disable_colors()
     for group in globals.values():
         if not isinstance(group, Group):
             continue
         if args.groups and group.name not in args.groups:
             continue
-        group.print(
+        config = Config(
             stream=stdout,
             opcodes=args.opcodes,
-            colors=colors,
+            allocations=args.allocations,
+            histogram_lines=args.histogram_lines,
         )
+        group.print(config=config)
 
 
 def main(argv: list[str], stdout: TextIO) -> int:
@@ -62,12 +63,20 @@ def main(argv: list[str], stdout: TextIO) -> int:
         help='Count opcodes. Slow but reproducible.'
     )
     parser.add_argument(
+        '--allocations', action='store_true',
+        help='Count memory allocations. Slow but fun.'
+    )
+    parser.add_argument(
         '--no-color', action='store_true',
         help='Write a boring one-color output.'
     )
     parser.add_argument(
         '--pdb', action='store_true',
         help='Run PDB on failure.'
+    )
+    parser.add_argument(
+        '--histogram-lines', type=int,
+        help='How many lines each histogram should take.'
     )
     parser.add_argument(
         '--group', dest='groups', nargs='*',

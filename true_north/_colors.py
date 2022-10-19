@@ -18,6 +18,12 @@ UNITS = {
     'ms': YELLOW,
     'us': GREEN,
     'ns': CYAN,
+
+    'B  ': CYAN,
+    'KiB': GREEN,
+    'MiB': YELLOW,
+    'GiB': RED,
+    'TiB': RED,
 }
 
 
@@ -28,24 +34,46 @@ def _color(color: str) -> Callable[..., str]:
         *,
         rjust: int | None = None,
         group: bool = False,
+        precision: int | None = None
     ) -> str:
+        if precision:
+            text = f'{text:.{precision}f}'
         if group and len(str(text)) > 4:
             text = f'{text:,}'.replace(',', '_')
         if rjust:
             text = f'{text:>{rjust}}'
-        if self.disabled:
+        if self._disabled:
             return str(text)
         return f'{color}{text}{END}'
 
     return colorer
 
 
-@dataclass(frozen=True)
+@dataclass
 class Colors:
-    disabled: bool = bool(os.environ.get('NO_COLOR'))
+    """An internal class responsible for coloring console output.
+    """
+    _disabled: bool = False
+
+    def disable(self) -> None:
+        """Print all output in boring white letters.
+        """
+        self._disabled = True
+
+    def enable(self) -> None:
+        """Make all output chad and colorful.
+        """
+        self._disabled = False
+
+    def reset(self) -> None:
+        """Restore the coloring state to the default (NO_COLOR env var).
+        """
+        self._disabled = bool(os.environ.get('NO_COLOR'))
 
     def color_unit(self, unit: str) -> str:
-        if self.disabled:
+        """Color a unit of time (ns) of size (MiB).
+        """
+        if self._disabled:
             return unit
         return f'{UNITS[unit]}{unit}{END}'
 
@@ -57,4 +85,11 @@ class Colors:
     cyan = _color(CYAN)
 
 
-DEFAULT_COLORS = Colors()
+# The global singleton instance used by all code.
+colors = Colors()
+colors.reset()
+
+# public API
+disable_colors = colors.disable
+enable_colors = colors.enable
+reset_colors = colors.reset

@@ -1,16 +1,17 @@
 """Beautiful and pythonic benchmarks engine.
 """
-from ._check import Check
-from ._colors import Colors
+from . import types
+from ._colors import disable_colors, enable_colors, reset_colors
+from ._config import Config
 from ._group import Group
-from ._result import Result
 
 
 __version__ = '0.2.0'
 __all__ = [
-    'setup',
-    'Check',
-    'Colors',
+    'disable_colors',
+    'enable_colors',
+    'Config',
     'Group',
-    'Result',
+    'reset_colors',
+    'types',
 ]

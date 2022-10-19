@@ -2,14 +2,13 @@ from __future__ import annotations
 
 import inspect
 import os
-import sys
 from time import perf_counter
-from typing import Callable, Iterator, TextIO
+from typing import Callable
 
 from ._check import Check, Func
-from ._colors import DEFAULT_COLORS, Colors
+from ._colors import colors
+from ._config import DEFAULT_CONFIG, Config
 from ._loopers import Timer
-from ._result import Result
 
 
 class Group:
@@ -53,12 +52,13 @@ class Group:
             name: if not specified, the function name will be used.
             loops: how many times to run the benchmark in each repeat.
                 If not specified, will be automatically detected
-                to make each repet last at least min_time seconds.
+                to make each repeat last at least min_time seconds.
             repeats: how many times repeat the benchmark (all loops).
                 The results will show only the best repeat
                 to reduce how external factors affect the results.
             min_time: the minimum run time to target if `loops` is not specified.
             timer: function used to get the current time.
+
         """
         def wrapper(func: Func) -> Check:
             check = Check(
@@ -79,32 +79,18 @@ class Group:
             return wrapper(func)  # type: ignore[return-value]
         return wrapper
 
-    def print(
-        self,
-        stream: TextIO = sys.stdout,
-        colors: Colors = DEFAULT_COLORS,
-        opcodes: bool = False,
-    ) -> None:
+    def print(self, config: Config = DEFAULT_CONFIG) -> None:
         """Run all benchmarks in the group and print their results.
 
         Args:
             stream: the stream where to write all output.
                 Default is stdout.
             opcodes: count opcodes. Slow but reproducible.
+            allocations: track memory allocations. Slow but interesting.
         """
         base_time: float | None = None
-        print(colors.blue(self.name), file=stream)
+        print(colors.blue(self.name), file=config.stream)
         for check in self._checks:
-            print(f'  {colors.magenta(check.name)}', file=stream)
-            result = check.run()
-            print(result.get_text(colors=colors, base_time=base_time), file=stream)
+            result = check.print(config=config, base_time=base_time)
             if base_time is None:
                 base_time = result.best
-            if opcodes:
-                print(result.format_opcodes(check.count_opcodes()), file=stream)
-
-    def iter(self) -> Iterator[Result]:
-        """Iterate over all benchmarks and run them.
-        """
-        for check in self._checks:
-            yield check.run()
