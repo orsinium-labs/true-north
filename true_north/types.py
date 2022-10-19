@@ -1,5 +1,5 @@
 from ._check import Check
-from ._results import BaseResult, TimingResult, OpcodesResult, MallocResult
+from ._results import BaseResult, MallocResult, OpcodesResult, TimingResult
 
 
 __all__ = [
