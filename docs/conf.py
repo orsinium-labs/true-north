@@ -2,9 +2,9 @@ project = 'true-north'
 copyright = '2022, @orsinium'
 author = '@orsinium'
 templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 html_theme = 'alabaster'
-# html_static_path = ['_static']
+autodoc_typehints_format = 'short'
+autodoc_preserve_defaults = True
 
 extensions = [
     'sphinx.ext.autodoc',

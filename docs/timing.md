@@ -1,4 +1,4 @@
-# Benchmarking execution time
+# Benchmark execution time
 
 ## Reading output
 

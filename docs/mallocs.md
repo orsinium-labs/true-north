@@ -1,4 +1,4 @@
-# Tracing memory allocations
+# Trace memory allocations
 
 The library can trace [memory allocations](https://www.cs.uah.edu/~rcoleman/Common/C_Reference/MemoryAlloc.html) but doesn't do it by default because it is expensive (in terms of execution time). And to keep the benchmark execution time reasonable when tracing memory, true-north will collect the sample only after some operations, not all of them. So, the real numbers of allocations and usage might be higher.
 
