@@ -1,6 +1,11 @@
 # true-north
 
-Beautiful, powerful, and pythonic benchmarks engine for Python code. See [github.com/orsinium-labs/true-north](https://github.com/orsinium-labs/true-north) to get started.
+```{include} ../README.md
+:start-after: "# true-north"
+:end-before: "See [examples]"
+```
+
+Learn more:
 
 ```{eval-rst}
 
@@ -12,3 +17,5 @@ Beautiful, powerful, and pythonic benchmarks engine for Python code. See [github
     mallocs
     api
 ```
+
+The source code is available on GitHub: [github.com/orsinium-labs/true-north](https://github.com/orsinium-labs/true-north)

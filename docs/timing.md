@@ -1,5 +1,7 @@
 # Benchmark execution time
 
+...
+
 ## Reading output
 
 Let's take the following benchmark output as an example:
